@@ -1,11 +1,14 @@
 import numpy as np
 import os
 import cv2
+
+
+
 from thorlabs_tsi_sdk.tl_camera import TLCameraSDK, OPERATION_MODE
 
 try:
     # if on Windows, use the provided setup script to add the DLLs folder to the PATH
-    from windows_setup import configure_path
+    from camera_setup import configure_path
     configure_path()
 except ImportError:
     configure_path = None
