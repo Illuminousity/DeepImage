@@ -1,0 +1,3 @@
+https://github.com/Thorlabs/Camera_Examples/tree/main/Python
+
+follow above instructions
