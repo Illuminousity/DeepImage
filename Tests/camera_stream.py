@@ -25,10 +25,10 @@ with TLCameraSDK() as sdk:
         print("no cameras detected")
 
     with sdk.open_camera(available_cameras[0]) as camera:
-        camera.exposure_time_us = 10000  # set exposure to 11 ms
+        camera.exposure_time_us = 1  # set exposure to 11 ms
         camera.frames_per_trigger_zero_for_unlimited = 0  # start camera in continuous mode
         camera.image_poll_timeout_ms = 1000  # 1 second polling timeout
-        camera.frame_rate_control_value = 10
+        camera.frame_rate_control_value = 16
         camera.is_frame_rate_control_enabled = True
 
         camera.arm(2)
