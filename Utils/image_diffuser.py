@@ -8,6 +8,8 @@ import numpy as np
 import tkinter as tk
 from tkinter import filedialog
 from PIL import Image
+import concurrent.futures
+
 
 
 def FormatImage(image):
@@ -77,15 +79,26 @@ emnist = LoadDataset()
 #plt.show()
 
 
-for i in range(10000):
-   image,label = emnist[i]
-   formattedimage = FormatImage(image.numpy().squeeze())
-   diffused_image = apply_gaussian_blur(formattedimage)
-   save_path_diffused = f"./Images/Diffused/Very Diffused/diffused_image{i}.png"
-   save_path_raw = f"./Images/Raw/raw_image{i}.png"
-   cv2.imwrite(save_path_diffused, diffused_image)  # Save the image
-   cv2.imwrite(save_path_raw,formattedimage)
-   print(f"Image {i} Complete!")
+# Function to process a single image
+def process_image(i):
+    image, label = emnist[i]
+    formattedimage = FormatImage(image.numpy().squeeze())
+    diffused_image = apply_gaussian_blur(formattedimage)
+    
+    save_path_diffused = f"./Images/Diffused/Very Diffused/diffused_image{i}.png"
+    save_path_raw = f"./Images/Raw/raw_image{i}.png"
+    
+    cv2.imwrite(save_path_diffused, diffused_image)  # Save diffused image
+    cv2.imwrite(save_path_raw, formattedimage)  # Save raw image
+
+    print(f"Image {i} Complete!")
+
+# Use ThreadPoolExecutor for parallel execution
+num_workers = 16  # Adjust based on your CPU (recommended: # of CPU cores)
+with concurrent.futures.ThreadPoolExecutor(max_workers=num_workers) as executor:
+    executor.map(process_image, range(10000))
+
+
 
 
 # Load image in grayscale
