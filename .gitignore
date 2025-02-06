@@ -1,2 +1,3 @@
-# Ignore EMNIST DB
+# Ignore EMNIST DB & Data
 /data
+/Images

@@ -1,8 +1,7 @@
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
-from image_to_array import convert_single
-
+from load_emnist import LoadDataset
 
 import cv2
 import numpy as np
@@ -11,7 +10,12 @@ from tkinter import filedialog
 from PIL import Image
 
 
-def apply_gaussian_blur(image, kernel_size=(5, 5), sigma=0.5):
+def FormatImage(image):
+
+    return cv2.resize(image, (1024, 768), interpolation=cv2.INTER_LINEAR) * (2**8-1)
+
+
+def apply_gaussian_blur(image, kernel_size=(15,15), sigma=1000):
     """
     Apply Gaussian blur to an image.
 
@@ -23,7 +27,10 @@ def apply_gaussian_blur(image, kernel_size=(5, 5), sigma=0.5):
     Returns:
         Blurred image as a NumPy array
     """
-    return cv2.GaussianBlur(image, kernel_size, sigma)
+    for i in range(1000):
+        image = cv2.GaussianBlur(image, kernel_size, sigma)
+
+    return image
 
 def anisotropic_diffusion(image, iterations=1000, kappa=10, gamma=0.2, option=2):
     """
@@ -55,19 +62,42 @@ def anisotropic_diffusion(image, iterations=1000, kappa=10, gamma=0.2, option=2)
     return np.clip(image, 0, 255).astype(np.uint8)
 
 # Open a file dialog to select an image
+emnist = LoadDataset()
+#image,label = emnist[1]
+#formattedimage = FormatImage(image.numpy().squeeze())
+#diffused_image = apply_gaussian_blur(formattedimage)
+#fig, ax = plt.subplots(1, 2, figsize=(10, 5))
+#ax[0].imshow(formattedimage, cmap='gray')
+#ax[0].set_title("Original Image")
+#ax[0].axis('off')
+
+#ax[1].imshow(diffused_image, cmap='gray')
+#ax[1].set_title("Multimode Fiber Scrambled Image")
+#ax[1].axis('off')
+#plt.show()
+
+
+for i in range(10000):
+   image,label = emnist[i]
+   formattedimage = FormatImage(image.numpy().squeeze())
+   diffused_image = apply_gaussian_blur(formattedimage)
+   save_path_diffused = f"./Images/Diffused/Very Diffused/diffused_image{i}.png"
+   save_path_raw = f"./Images/Raw/raw_image{i}.png"
+   cv2.imwrite(save_path_diffused, diffused_image)  # Save the image
+   cv2.imwrite(save_path_raw,formattedimage)
+   print(f"Image {i} Complete!")
+
 
 # Load image in grayscale
-image = convert_single()
+
 
     # Apply anisotropic diffusion
-diffused_image = apply_gaussian_blur(image)
+
 
     # Open a dialog to select a save directory
 
 
 
-save_path = "./Programming/DeepImage/Images/Diffused/diffused_image.png"
-cv2.imwrite(save_path, diffused_image)  # Save the image
-print(f"Image saved successfully at: {save_path}")
+
 
 
