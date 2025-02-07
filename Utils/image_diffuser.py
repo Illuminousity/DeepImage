@@ -94,7 +94,7 @@ def process_image(i):
     print(f"Image {i} Complete!")
 
 # Use ThreadPoolExecutor for parallel execution
-num_workers = 16  # Adjust based on your CPU (recommended: # of CPU cores)
+num_workers = 32  # Adjust based on your CPU (recommended: # of CPU cores)
 with concurrent.futures.ThreadPoolExecutor(max_workers=num_workers) as executor:
     executor.map(process_image, range(10000))
 

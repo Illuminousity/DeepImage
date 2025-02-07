@@ -43,7 +43,7 @@ transform = transforms.Compose([
 ])
 
 # Create Dataset and DataLoader
-train_dataset = DiffusionDataset(diffused_dir="../Images/Diffused", clean_dir="../Images/Raw", transform=transform)
+train_dataset = DiffusionDataset(diffused_dir="../Images/Diffused/Very Diffused", clean_dir="../Images/Raw", transform=transform)
 train_loader = DataLoader(train_dataset, batch_size=8, shuffle=True)
 
 # Run Training
