@@ -24,7 +24,7 @@ DMD.Initialize()
 bitDepth = 8
 imgSeq=[]
 
-image1 = FormatImage(10,DMD) 
+image1 = FormatImage(42,DMD) 
 print(image1.__class__)
 image2 = FormatImage(2,DMD)
 
