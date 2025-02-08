@@ -1,4 +1,5 @@
 import os
+import re
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -68,13 +69,16 @@ class PhysicsLoss(nn.Module):
         return total_loss
 
 ############################
-# 3. CUSTOM DATASET
+# 3. FIXED DATASET
 ############################
 class DiffusionDataset(Dataset):
     """
-    Expects two folders of identically named images:
-      - diffused_dir: e.g. ./Images/Diffused/....
-      - clean_dir:    e.g. ./Images/Raw/....
+    Loads images named like:
+      - ./Images/Diffused/Very Diffused/diffused_image0.png
+      - ./Images/Raw/raw_image0.png
+    etc.
+    It parses the index from 'diffused_imageXXX.png' and automatically looks for
+    'raw_imageXXX.png' in the Raw folder.
     """
     def __init__(self, diffused_dir, clean_dir, transform=None):
         super().__init__()
@@ -82,23 +86,42 @@ class DiffusionDataset(Dataset):
         self.clean_dir = clean_dir
         self.transform = transform
         
-        # List of file names in diffused_dir
-        self.diffused_files = sorted(os.listdir(diffused_dir))
+        # We'll gather all filenames that match pattern "diffused_image(\d+).png"
+        pattern = re.compile(r'^diffused_image(\d+)\.png$')
+        self.diffused_files = []
+        
+        for fname in os.listdir(self.diffused_dir):
+            if pattern.match(fname):
+                self.diffused_files.append(fname)
+        
+        # Sort by numeric index so data order is consistent
+        self.diffused_files.sort(key=lambda x: int(pattern.match(x).group(1)))
 
     def __len__(self):
         return len(self.diffused_files)
 
     def __getitem__(self, idx):
-        # Build paths
+        # e.g. "diffused_image10.png"
         diffused_filename = self.diffused_files[idx]
-        diffused_path = os.path.join(self.diffused_dir, diffused_filename)
-        clean_path = os.path.join(self.clean_dir, diffused_filename)
         
-        # Open images (grayscale)
+        # Extract the numeric portion
+        match = re.match(r'^diffused_image(\d+)\.png$', diffused_filename)
+        if not match:
+            raise ValueError(f"File {diffused_filename} does not match 'diffused_image<number>.png' naming.")
+        index_str = match.group(1)
+        
+        # Build the corresponding raw filename: "raw_image10.png"
+        raw_filename = f"raw_image{index_str}.png"
+        
+        # Full paths
+        diffused_path = os.path.join(self.diffused_dir, diffused_filename)
+        clean_path = os.path.join(self.clean_dir, raw_filename)
+        
+        # Open images in grayscale
         diffused_img = Image.open(diffused_path).convert('L')
         clean_img = Image.open(clean_path).convert('L')
 
-        # Apply same transforms to both
+        # Apply same transforms
         if self.transform:
             diffused_img = self.transform(diffused_img)
             clean_img = self.transform(clean_img)
@@ -134,35 +157,34 @@ def train_model(model, dataloader, criterion, optimizer, device, num_epochs=5):
     print("Training complete!")
 
 ############################
-# EXAMPLE USAGE
+# USAGE EXAMPLE
 ############################
 if __name__ == '__main__':
-    # 1. Device setup
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     
-    # 2. Create model and push to device
+    # Create model, loss, optimizer
     model = PICNN().to(device)
-    
-    # 3. Define the loss function and optimizer
     criterion = PhysicsLoss(lambda_phys=0.1).to(device)
-    optimizer = optim.Adam(model.parameters(), lr=0.001)
+    optimizer = optim.Adam(model.parameters(), lr=1e-3)
     
-    # 4. Setup dataset & dataloader
-    #    NOTE: We are resizing to 768 (height) x 1024 (width)
+    # Transforms: e.g. resizing to 256x256 & normalizing
     transform = transforms.Compose([
-        transforms.Resize((768, 1024)),  # (Height, Width)
+        transforms.Resize((256, 256)),
         transforms.ToTensor(),
-        transforms.Normalize([0.5], [0.5])  # Example normalization
+        transforms.Normalize((0.5,), (0.5,))
     ])
     
+    # Folders
     diffused_dir = "./Images/Diffused/Very Diffused"
     clean_dir = "./Images/Raw"
-    train_dataset = DiffusionDataset(diffused_dir, clean_dir, transform=transform)
-    train_loader = DataLoader(train_dataset, batch_size=8, shuffle=True)
     
-    # 5. Train
-    train_model(model, train_loader, criterion, optimizer, device, num_epochs=5)
+    # Create dataset & loader
+    dataset = DiffusionDataset(diffused_dir, clean_dir, transform=transform)
+    dataloader = DataLoader(dataset, batch_size=8, shuffle=True)
     
-    # 6. Save model
-    torch.save(model.state_dict(), "picnn_undiffusion_1024x768.pth")
+    # Train
+    train_model(model, dataloader, criterion, optimizer, device, num_epochs=5)
+    
+    # Save model
+    torch.save(model.state_dict(), "picnn_undiffusion_fixed.pth")
     print("Model saved.")
