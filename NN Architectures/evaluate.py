@@ -19,16 +19,15 @@ if __name__ == "__main__":
     model.eval()
 
     # 3B: Define the same image transforms used for training
-    test_transform = transforms.Compose([
-        transforms.Resize((1024, 768)),   # or whatever size you used
+    test_transform = transforms.Compose([  # or whatever size you used
         transforms.ToTensor(),
         transforms.Normalize((0.5,), (0.5,))
     ])
 
     # 3C: Load a diffused test image
-    diffused_path = "./Images/Diffused/Very Diffused/diffused_image0.png"  # Path to your diffused image
+    diffused_path = "./Images/Diffused/Very Diffused/diffused_image3.png"  # Path to your diffused image
     diffused_img = Image.open(diffused_path).convert("L")
-    actual_path = "./Images/Raw/raw_image0.png"
+    actual_path = "./Images/Raw/raw_image3.png"
     actual_img = Image.open(actual_path).convert("L")
     
     # Apply transform & create batch dimension
