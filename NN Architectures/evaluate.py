@@ -21,7 +21,7 @@ def FormatImage(image):
 if __name__ == "__main__":
     # 3A: Load your saved model
     model = PICNN()
-    checkpoint_path = "picnn_undiffusion_fixed.pth"  # Path to your saved weights
+    checkpoint_path = "picnn_undiffusion_10_full_physics.pth"  # Path to your saved weights
     model.load_state_dict(torch.load(checkpoint_path, map_location="cpu"))
     model.eval()
 
@@ -34,7 +34,7 @@ if __name__ == "__main__":
     # 3C: Load a diffused test image
     diffused_path = "frame_100.png"  # Path to your diffused image
     diffused_img = Image.open(diffused_path).convert("L")
-    actual_path = "./Images/Raw/raw_image3.png"
+    actual_path = "./Images/Raw/raw_image25.png"
     actual_img = Image.open(actual_path).convert("L")
     
     # Apply transform & create batch dimension
