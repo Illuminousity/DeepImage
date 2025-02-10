@@ -6,6 +6,13 @@ from torchvision import transforms
 from PICNNModel import PICNN, PhysicsLoss, DiffusionDataset
 from PIL import Image
 import matplotlib.pyplot as plt
+import cv2
+
+
+def FormatImage(image):
+
+    return cv2.resize(image, (256, 192), interpolation=cv2.INTER_LINEAR) * (2**8-1)
+
 
 
 # ================================
@@ -25,7 +32,7 @@ if __name__ == "__main__":
     ])
 
     # 3C: Load a diffused test image
-    diffused_path = "./Images/Diffused/Very Diffused/diffused_image3.png"  # Path to your diffused image
+    diffused_path = "frame_100.png"  # Path to your diffused image
     diffused_img = Image.open(diffused_path).convert("L")
     actual_path = "./Images/Raw/raw_image3.png"
     actual_img = Image.open(actual_path).convert("L")
