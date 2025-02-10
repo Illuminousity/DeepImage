@@ -58,7 +58,7 @@ if __name__ == '__main__':
     
     # Create model, loss, optimizer
     model = PICNN().to(device)
-    criterion = PhysicsLoss(lambda_phys=0.25).to(device)
+    criterion = PhysicsLoss(lambda_phys=1).to(device)
     optimizer = optim.Adam(model.parameters(), lr=1e-3)
     
     # Transforms: e.g. resizing to 256x256 & normalizing
@@ -68,7 +68,7 @@ if __name__ == '__main__':
     ])
     
     # Folders
-    diffused_dir = "./Images/Diffused/50 Diffused"
+    diffused_dir = "./Images/Diffused/10 Diffused"
     clean_dir = "./Images/Raw"
     
     # Create dataset & loader
@@ -76,8 +76,8 @@ if __name__ == '__main__':
     dataloader = DataLoader(dataset, batch_size=8, shuffle=True)
     
     # Train & plot
-    train_model(model, dataloader, criterion, optimizer, device, num_epochs=25)
+    train_model(model, dataloader, criterion, optimizer, device, num_epochs=10)
     
     # Save model
-    torch.save(model.state_dict(), "picnn_undiffusion_50.pth")
+    torch.save(model.state_dict(), "picnn_undiffusion_10_full_physics.pth")
     print("Model saved.")
