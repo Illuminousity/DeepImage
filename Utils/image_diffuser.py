@@ -14,7 +14,7 @@ import concurrent.futures
 
 def FormatImage(image):
 
-    return cv2.resize(image, (1024, 768), interpolation=cv2.INTER_LINEAR) * (2**8-1)
+    return cv2.resize(image, (256, 192), interpolation=cv2.INTER_LINEAR) * (2**8-1)
 
 
 def apply_gaussian_blur(image, kernel_size=(15,15), sigma=1000):
@@ -29,7 +29,7 @@ def apply_gaussian_blur(image, kernel_size=(15,15), sigma=1000):
     Returns:
         Blurred image as a NumPy array
     """
-    for i in range(1000):
+    for i in range(50):
         image = cv2.GaussianBlur(image, kernel_size, sigma)
 
     return image
@@ -85,7 +85,7 @@ def process_image(i):
     formattedimage = FormatImage(image.numpy().squeeze())
     diffused_image = apply_gaussian_blur(formattedimage)
     
-    save_path_diffused = f"./Images/Diffused/Very Diffused/diffused_image{i}.png"
+    save_path_diffused = f"./Images/Diffused/50 Diffused/diffused_image{i}.png"
     save_path_raw = f"./Images/Raw/raw_image{i}.png"
     
     cv2.imwrite(save_path_diffused, diffused_image)  # Save diffused image

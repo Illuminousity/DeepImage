@@ -68,7 +68,7 @@ if __name__ == '__main__':
     ])
     
     # Folders
-    diffused_dir = "./Images/Diffused/Very Diffused"
+    diffused_dir = "./Images/Diffused/50 Diffused"
     clean_dir = "./Images/Raw"
     
     # Create dataset & loader
@@ -76,8 +76,8 @@ if __name__ == '__main__':
     dataloader = DataLoader(dataset, batch_size=8, shuffle=True)
     
     # Train & plot
-    train_model(model, dataloader, criterion, optimizer, device, num_epochs=5)
+    train_model(model, dataloader, criterion, optimizer, device, num_epochs=25)
     
     # Save model
-    torch.save(model.state_dict(), "picnn_undiffusion_fixed.pth")
+    torch.save(model.state_dict(), "picnn_undiffusion_50.pth")
     print("Model saved.")
