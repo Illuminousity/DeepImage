@@ -18,6 +18,7 @@ def FormatImage(num, DMD):
     canvas[y_off:y_off+192, x_off:x_off+256] = img_resized
     return canvas
 
+
 try:
     from camera_setup import configure_path
     configure_path()
@@ -40,10 +41,10 @@ with TLCameraSDK() as sdk:
 
     with sdk.open_camera(available_cameras[0]) as camera:
         print(f"Opened camera: {camera.model} (SN: {camera.serial_number})")
-        camera.roi_width_pixels = 256
-        camera.roi_height_pixels = 192
-        camera.roi_x_pixels = 648
-        camera.roi_y_pixels = 348
+        camera.roi_width_pixels = 476
+        camera.roi_height_pixels = 432
+        camera.roi_x_pixels = 568
+        camera.roi_y_pixels = 224
         camera.exposure_time_us = 100
         camera.frames_per_trigger_zero_for_unlimited = 0
         camera.image_poll_timeout_ms = 0
@@ -70,8 +71,12 @@ with TLCameraSDK() as sdk:
                     camera.image_width_pixels
                 )
                 nd_image_array = np.dstack([numpy_shaped_image]*3).astype(np.uint8)
-                filename = f"./Images/DMD/1500 GRIT/captured_frame_{i}.png"
-                cv2.imwrite(filename, nd_image_array)
+                
+                # Mirror the image both horizontally and vertically
+                mirrored_image = cv2.flip(nd_image_array, -1)
+                
+                filename = f"./DMD/1500 GRIT/captured_frame_{i}.png"
+                cv2.imwrite(filename, mirrored_image)
                 print(f"Saved {filename}")
 
                 dmd.Halt()
