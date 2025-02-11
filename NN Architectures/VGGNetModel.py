@@ -26,8 +26,8 @@ class VGGNet20(nn.Module):
         )
         
         # Pooling & Reshape (Adaptive Pooling to Reduce FC Layer Size)
-        self.pool = nn.MaxPool2d(kernel_size=2, stride=2)
-        self.global_avg_pool = nn.AdaptiveAvgPool2d((8, 8))  # Reduce to (256, 8, 8)
+        self.pool = nn.MaxPool2d(kernel_size=2, stride=2)  # Output: (batch, 256, 128, 96)
+        self.global_avg_pool = nn.AdaptiveAvgPool2d((8, 8))  # Output: (batch, 256, 8, 8)
         
         # Fully Connected Layers (Reduced Size)
         self.fc1 = nn.Linear(256 * 8 * 8, 512)
@@ -45,18 +45,18 @@ class VGGNet20(nn.Module):
         x = self.conv_layers(x)
         
         # Pooling
-        x = self.pool(x)
-        x = self.global_avg_pool(x)
+        x = self.pool(x)  # Output: (batch, 256, 128, 96)
+        x = self.global_avg_pool(x)  # Output: (batch, 256, 8, 8)
         
         # Flatten & Fully Connected
-        b, c, h, w = x.shape
-        x = x.view(b, -1)
+        b, c, h, w = x.shape  # Expecting (batch, 256, 8, 8)
+        x = x.view(b, -1)  # Flatten
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
-        x = x.view(b, c, h, w)
+        x = x.view(b, 256, 8, 8)  # Reshape correctly
         
         # Upsample & Output
-        x = self.upsample(x)
+        x = self.upsample(x)  # (batch, 256, 256, 192)
         x = self.output_conv(x)
         
         return x
