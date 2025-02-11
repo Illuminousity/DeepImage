@@ -41,55 +41,47 @@ class PICNN(nn.Module):
 # 2. HELMHOLTZ-BASED LOSS
 ############################
 class HelmholtzLoss(nn.Module):
-    """
-    A wave-based physics loss that approximates the 2D Helmholtz PDE:
-       ∇²(psi) + k^2 psi = 0
-    for a real-valued field psi.
-    We'll combine this PDE penalty with a data fidelity term (L1).
-    """
-    def __init__(self, wave_number=1.0, lambda_phys=0.1):
+    def __init__(self, wave_number=(2 * 3.14159265359 / 660e-9) * 1e-6, lambda_phys=0.1):
         super(HelmholtzLoss, self).__init__()
         self.wave_number = wave_number
         self.lambda_phys = lambda_phys
 
-        # Discrete Laplacian kernel
+        # Laplacian kernel
         laplacian = torch.tensor(
             [[0,  1, 0],
              [1, -4, 1],
              [0,  1, 0]], dtype=torch.float32
-        ).view(1,1,3,3)
+        ).view(1, 1, 3, 3)
         self.register_buffer("laplacian_kernel", laplacian)
 
     def forward(self, pred, target):
-        """
-        pred, target: (batch, 1, H, W)
-        1) L1 data fidelity: |pred - target|
-        2) Helmholtz PDE penalty: MSE(∇² pred + k^2 * pred, 0)
-        """
-        # -- 1) Data Fidelity (L1)
+        # Ensure prediction and target sizes match
+        if pred.shape != target.shape:
+            target = F.interpolate(target, size=pred.shape[2:], mode="bilinear", align_corners=False)
+
+        # Data Fidelity (L1)
         data_loss = F.l1_loss(pred, target)
 
-        # -- 2) PDE: ∇²(pred) + k^2 * pred = 0
-        #    a) Laplacian
+        # Helmholtz PDE Constraint
         lap_pred = F.conv2d(pred, self.laplacian_kernel, padding=1)
-        #    b) Add k^2 * pred
-        helmholtz_residual = lap_pred + (self.wave_number**2)*pred
+        
+        # Apply stability fix (no NaNs, clamp extreme values)
+        helmholtz_residual = lap_pred + (self.wave_number**2) * pred
+        helmholtz_residual = torch.nan_to_num(helmholtz_residual, nan=0.0, posinf=1.0, neginf=-1.0)
 
-        #    c) Enforce ~ 0
+        # PDE Loss
         pde_loss = F.mse_loss(helmholtz_residual, torch.zeros_like(helmholtz_residual))
 
         total_loss = data_loss + self.lambda_phys * pde_loss
         return total_loss
+
 
 ############################
 # 3. FIXED DATASET
 ############################
 class DiffusionDataset(Dataset):
     """
-    Loads images named like:
-      - ./Images/Diffused/Very Diffused/diffused_image0.png
-      - ./Images/Raw/raw_image0.png
-    etc.
+
     Parses the index from 'diffused_imageXXX.png' and automatically
     looks for 'raw_imageXXX.png' in the Raw folder.
     """
