@@ -34,7 +34,7 @@ class VGGNet20(nn.Module):
         self.fc2 = nn.Linear(512, 256 * 8 * 8)
         
         # Upsampling & Output Layers
-        self.upsample = nn.Upsample(size=(256, 192), mode="bilinear", align_corners=False)
+        self.upsample = nn.Upsample(size=(192, 256), mode="bilinear", align_corners=False)
         self.output_conv = nn.Conv2d(256, 1, kernel_size=3, padding=1)
 
     def forward(self, x):
@@ -56,7 +56,7 @@ class VGGNet20(nn.Module):
         x = x.view(b, 256, 8, 8)  # Reshape correctly
         
         # Upsample & Output
-        x = self.upsample(x)  # (batch, 256, 256, 192)
+        x = self.upsample(x)  # (batch, 256, 192, 256)
         x = self.output_conv(x)
         
         return x
@@ -79,6 +79,10 @@ class HelmholtzLoss(nn.Module):
         self.register_buffer("laplacian_kernel", laplacian)
 
     def forward(self, pred, target):
+        # Ensure prediction and target have the same shape
+        if pred.shape != target.shape:
+            target = F.interpolate(target, size=pred.shape[2:], mode="bilinear", align_corners=False)
+        
         # Data Fidelity (L1)
         data_loss = F.l1_loss(pred, target)
         

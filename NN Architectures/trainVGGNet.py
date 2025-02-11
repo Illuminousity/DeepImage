@@ -57,7 +57,7 @@ if __name__ == '__main__':
     
     # Create model, loss, optimizer
     model = VGGNet20().to(device)
-    criterion = HelmholtzLoss(wave_number=(2*math.pi() / 660**-9), lambda_phys=1).to(device)
+    criterion = HelmholtzLoss(wave_number=(2*3.1415926 / 660**-9), lambda_phys=1).to(device)
     optimizer = optim.Adam(model.parameters(), lr=1e-3)
     
     # Transforms: e.g.  normalizing
