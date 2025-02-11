@@ -7,7 +7,7 @@ from torch.utils.data import Dataset
 from PIL import Image
 
 ############################
-# 1. VGGNET-20 STYLE MODEL
+# 1. OPTIMIZED VGGNET-20 STYLE MODEL
 ############################
 class VGGNet20(nn.Module):
     def __init__(self):
@@ -16,26 +16,26 @@ class VGGNet20(nn.Module):
         # Input Convolution
         self.input_conv = nn.Conv2d(1, 64, kernel_size=3, padding=1)
         
-        # Convolutional Blocks
+        # Convolutional Blocks (Reduced Feature Maps)
         self.conv_layers = nn.Sequential(
             nn.Conv2d(64, 128, kernel_size=3, padding=1), nn.ReLU(),
+            nn.Conv2d(128, 128, kernel_size=3, padding=1), nn.ReLU(),
             nn.Conv2d(128, 256, kernel_size=3, padding=1), nn.ReLU(),
             nn.Conv2d(256, 256, kernel_size=3, padding=1), nn.ReLU(),
-            nn.Conv2d(256, 512, kernel_size=3, padding=1), nn.ReLU(),
-            nn.Conv2d(512, 512, kernel_size=3, padding=1), nn.ReLU(),
-            nn.Conv2d(512, 512, kernel_size=3, padding=1), nn.ReLU(),
+            nn.Conv2d(256, 256, kernel_size=3, padding=1), nn.ReLU(),
         )
         
-        # Pooling & Reshape
+        # Pooling & Reshape (Adaptive Pooling to Reduce FC Layer Size)
         self.pool = nn.MaxPool2d(kernel_size=2, stride=2)
+        self.global_avg_pool = nn.AdaptiveAvgPool2d((8, 8))  # Reduce to (256, 8, 8)
         
-        # Fully Connected Layers
-        self.fc1 = nn.Linear(512 * 128 * 96, 1024)
-        self.fc2 = nn.Linear(1024, 512 * 128 * 96)
+        # Fully Connected Layers (Reduced Size)
+        self.fc1 = nn.Linear(256 * 8 * 8, 512)
+        self.fc2 = nn.Linear(512, 256 * 8 * 8)
         
         # Upsampling & Output Layers
         self.upsample = nn.Upsample(size=(256, 192), mode="bilinear", align_corners=False)
-        self.output_conv = nn.Conv2d(512, 1, kernel_size=3, padding=1)
+        self.output_conv = nn.Conv2d(256, 1, kernel_size=3, padding=1)
 
     def forward(self, x):
         # Input Layer
@@ -46,6 +46,7 @@ class VGGNet20(nn.Module):
         
         # Pooling
         x = self.pool(x)
+        x = self.global_avg_pool(x)
         
         # Flatten & Fully Connected
         b, c, h, w = x.shape
@@ -64,7 +65,7 @@ class VGGNet20(nn.Module):
 # 2. HELMHOLTZ-BASED LOSS
 ############################
 class HelmholtzLoss(nn.Module):
-    def __init__(self, wave_number=1.0, lambda_phys=0.1):
+    def __init__(self, wave_number=2 * 3.14159265359 / 660e-9, lambda_phys=0.1):
         super(HelmholtzLoss, self).__init__()
         self.wave_number = wave_number
         self.lambda_phys = lambda_phys
