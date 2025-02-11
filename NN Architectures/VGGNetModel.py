@@ -62,36 +62,50 @@ class VGGNet20(nn.Module):
         return x
 
 ############################
-# 2. HELMHOLTZ-BASED LOSS
+# 2. Physics-BASED LOSS
 ############################
-class HelmholtzLoss(nn.Module):
-    def __init__(self, wave_number=2 * 3.14159265359 / 660e-9, lambda_phys=0.1):
-        super(HelmholtzLoss, self).__init__()
+class SpecklePhysicsLoss(nn.Module):
+    def __init__(self, wave_number=(2 * 3.14159265359 / 660e-9), lambda_helm=0.1, lambda_speckle=0.05, lambda_fourier=0.05):
+        super(SpecklePhysicsLoss, self).__init__()
         self.wave_number = wave_number
-        self.lambda_phys = lambda_phys
+        self.lambda_helm = lambda_helm
+        self.lambda_speckle = lambda_speckle
+        self.lambda_fourier = lambda_fourier
 
-        # Discrete Laplacian kernel
+        # Laplacian Kernel (Finite Difference Approximation)
         laplacian = torch.tensor(
-            [[0,  1, 0],
+            [[0, 1, 0],
              [1, -4, 1],
-             [0,  1, 0]], dtype=torch.float32
-        ).view(1,1,3,3)
+             [0, 1, 0]], dtype=torch.float32
+        ).view(1, 1, 3, 3)
         self.register_buffer("laplacian_kernel", laplacian)
 
     def forward(self, pred, target):
-        # Ensure prediction and target have the same shape
+        # Ensure shape consistency
         if pred.shape != target.shape:
             target = F.interpolate(target, size=pred.shape[2:], mode="bilinear", align_corners=False)
-        
-        # Data Fidelity (L1)
+
+        # Standard Reconstruction Loss (L1 loss)
         data_loss = F.l1_loss(pred, target)
-        
-        # Helmholtz PDE Constraint
+
+        # Helmholtz PDE Loss
         lap_pred = F.conv2d(pred, self.laplacian_kernel, padding=1)
-        helmholtz_residual = lap_pred + (self.wave_number**2)*pred
-        pde_loss = F.mse_loss(helmholtz_residual, torch.zeros_like(helmholtz_residual))
-        
-        total_loss = data_loss + self.lambda_phys * pde_loss
+        helmholtz_residual = lap_pred + (self.wave_number**2) * pred
+        helmholtz_loss = F.mse_loss(helmholtz_residual, torch.zeros_like(helmholtz_residual))
+
+        # Speckle Statistics Loss
+        mean_pred = torch.mean(pred)
+        var_pred = torch.var(pred)
+        speckle_loss = F.mse_loss(var_pred / (mean_pred**2), torch.tensor(1.0, device=pred.device))
+
+        # Fourier Spectrum Loss
+        pred_fft = torch.fft.fft2(pred)
+        target_fft = torch.fft.fft2(target)
+        fourier_loss = F.l1_loss(torch.abs(pred_fft), torch.abs(target_fft))
+
+        # Total loss
+        total_loss = data_loss + self.lambda_helm * helmholtz_loss + self.lambda_speckle * speckle_loss + self.lambda_fourier * fourier_loss
+
         return total_loss
 
 ############################

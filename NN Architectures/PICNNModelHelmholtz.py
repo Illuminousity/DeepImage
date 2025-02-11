@@ -41,39 +41,35 @@ class PICNN(nn.Module):
 # 2. HELMHOLTZ-BASED LOSS
 ############################
 class HelmholtzLoss(nn.Module):
-    def __init__(self, wave_number=(2 * 3.14159265359 / 660e-9) * 1e-6, lambda_phys=0.1):
+    def __init__(self, wave_number=2 * 3.14159265359 / 660e-9, lambda_phys=0.1):
         super(HelmholtzLoss, self).__init__()
         self.wave_number = wave_number
         self.lambda_phys = lambda_phys
 
-        # Laplacian kernel
+        # Discrete Laplacian kernel
         laplacian = torch.tensor(
             [[0,  1, 0],
              [1, -4, 1],
              [0,  1, 0]], dtype=torch.float32
-        ).view(1, 1, 3, 3)
+        ).view(1,1,3,3)
         self.register_buffer("laplacian_kernel", laplacian)
 
     def forward(self, pred, target):
-        # Ensure prediction and target sizes match
+        # Ensure prediction and target have the same shape
         if pred.shape != target.shape:
             target = F.interpolate(target, size=pred.shape[2:], mode="bilinear", align_corners=False)
-
+        
         # Data Fidelity (L1)
         data_loss = F.l1_loss(pred, target)
-
+        
         # Helmholtz PDE Constraint
         lap_pred = F.conv2d(pred, self.laplacian_kernel, padding=1)
-        
-        # Apply stability fix (no NaNs, clamp extreme values)
-        helmholtz_residual = lap_pred + (self.wave_number**2) * pred
-        helmholtz_residual = torch.nan_to_num(helmholtz_residual, nan=0.0, posinf=1.0, neginf=-1.0)
-
-        # PDE Loss
+        helmholtz_residual = lap_pred + (self.wave_number**2)*pred
         pde_loss = F.mse_loss(helmholtz_residual, torch.zeros_like(helmholtz_residual))
-
+        
         total_loss = data_loss + self.lambda_phys * pde_loss
         return total_loss
+
 
 
 ############################

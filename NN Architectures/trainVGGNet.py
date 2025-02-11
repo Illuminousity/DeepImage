@@ -4,7 +4,7 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 import matplotlib.pyplot as plt  # <-- ADDED: For plotting
 
-from VGGNetModel import VGGNet20, HelmholtzLoss, DiffusionDataset
+from VGGNetModel import VGGNet20, SpecklePhysicsLoss, DiffusionDataset
 import math
 ############################
 # TRAINING LOOP WITH PLOTTING
@@ -57,7 +57,7 @@ if __name__ == '__main__':
     
     # Create model, loss, optimizer
     model = VGGNet20().to(device)
-    criterion = HelmholtzLoss(wave_number=(2*3.1415926 / 660**-9), lambda_phys=1).to(device)
+    criterion = SpecklePhysicsLoss(wave_number=(2*3.1415926 / 660e-9)).to(device)
     optimizer = optim.Adam(model.parameters(), lr=1e-3)
     
     # Transforms: e.g.  normalizing
