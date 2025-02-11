@@ -4,7 +4,7 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 import matplotlib.pyplot as plt  # <-- ADDED: For plotting
 
-from PICNNModel import PICNN, PhysicsLoss, DiffusionDataset
+from PICNNModelHelmholtz import PICNN, HelmholtzLoss, DiffusionDataset
 
 ############################
 # TRAINING LOOP WITH PLOTTING
@@ -58,17 +58,17 @@ if __name__ == '__main__':
     
     # Create model, loss, optimizer
     model = PICNN().to(device)
-    criterion = PhysicsLoss(lambda_phys=1).to(device)
+    criterion = HelmholtzLoss(wave_number=(2*3.1415926 / 660**-9), lambda_phys=1).to(device)
     optimizer = optim.Adam(model.parameters(), lr=1e-3)
     
-    # Transforms: e.g. resizing to 256x256 & normalizing
+    # Transforms: e.g.  normalizing
     transform = transforms.Compose([
         transforms.ToTensor(),
         transforms.Normalize((0.5,), (0.5,))
     ])
     
     # Folders
-    diffused_dir = "./Images/Diffused/10 Diffused"
+    diffused_dir = "./DMD/1500 GRIT"
     clean_dir = "./Images/Raw"
     
     # Create dataset & loader
@@ -79,5 +79,5 @@ if __name__ == '__main__':
     train_model(model, dataloader, criterion, optimizer, device, num_epochs=10)
     
     # Save model
-    torch.save(model.state_dict(), "picnn_undiffusion_10_full_physics.pth")
+    torch.save(model.state_dict(), "PICNN20_undiffusion_50_full_physics.pth")
     print("Model saved.")

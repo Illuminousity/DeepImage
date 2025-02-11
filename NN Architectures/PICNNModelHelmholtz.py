@@ -100,7 +100,7 @@ class DiffusionDataset(Dataset):
         self.transform = transform
         
         # We'll gather all filenames that match pattern "diffused_image(\d+).png"
-        pattern = re.compile(r'^diffused_image(\d+)\.png$')
+        pattern = re.compile(r'^captured_frame_(\d+)\.png$')
         self.diffused_files = []
         
         for fname in os.listdir(self.diffused_dir):
@@ -116,7 +116,7 @@ class DiffusionDataset(Dataset):
     def __getitem__(self, idx):
         diffused_filename = self.diffused_files[idx]
         
-        match = re.match(r'^diffused_image(\d+)\.png$', diffused_filename)
+        match = re.match(r'^captured_frame_(\d+)\.png$', diffused_filename)
         if not match:
             raise ValueError(
                 f"File {diffused_filename} does not match 'diffused_image<number>.png' naming."
