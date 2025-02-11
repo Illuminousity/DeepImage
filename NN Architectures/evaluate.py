@@ -32,7 +32,7 @@ if __name__ == "__main__":
     ])
 
     # 3C: Load a diffused test image
-    diffused_path = "frame_100.png"  # Path to your diffused image
+    diffused_path = "./frame_100.png" # Path to your diffused image
     diffused_img = Image.open(diffused_path).convert("L")
     actual_path = "./Images/Raw/raw_image3.png"
     actual_img = Image.open(actual_path).convert("L")
