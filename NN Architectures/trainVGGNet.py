@@ -67,15 +67,15 @@ if __name__ == '__main__':
     ])
     
     # Folders
-    diffused_dir = "./Images/Diffused/50 Diffused"
-    clean_dir = "./Images/Raw"
+    diffused_dir = "./DMD/1500 GRIT"
+    clean_dir = "./DMD/Raw"
     
     # Create dataset & loader
     dataset = DiffusionDataset(diffused_dir, clean_dir, transform=transform)
-    dataloader = DataLoader(dataset, batch_size=8, shuffle=True)
+    dataloader = DataLoader(dataset, batch_size=4, shuffle=True)
     
     # Train & plot
-    train_model(model, dataloader, criterion, optimizer, device, num_epochs=10)
+    train_model(model, dataloader, criterion, optimizer, device, num_epochs=3)
     
     # Save model
     torch.save(model.state_dict(), "vggnet20_undiffusion_10_full_physics.pth")

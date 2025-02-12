@@ -58,7 +58,7 @@ if __name__ == '__main__':
     
     # Create model, loss, optimizer
     model = PICNN().to(device)
-    criterion = HelmholtzLoss(wave_number=(2*3.1415926 / 660e-9), lambda_phys=1).to(device)
+    criterion = HelmholtzLoss(wave_number=(2*3.1415926 / 660e-9), lambda_phys=0).to(device)
     optimizer = optim.Adam(model.parameters(), lr=1e-3)
     
     # Transforms: e.g.  normalizing
@@ -76,8 +76,8 @@ if __name__ == '__main__':
     dataloader = DataLoader(dataset, batch_size=8, shuffle=True)
     
     # Train & plot
-    train_model(model, dataloader, criterion, optimizer, device, num_epochs=10)
+    train_model(model, dataloader, criterion, optimizer, device, num_epochs=3)
     
     # Save model
-    torch.save(model.state_dict(), "PICNN20_undiffusion_50_full_physics.pth")
+    torch.save(model.state_dict(), "PICNN20_undiffusion_1500_no_physics.pth")
     print("Model saved.")

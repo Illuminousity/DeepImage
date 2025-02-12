@@ -111,7 +111,7 @@ class DiffusionDataset(Dataset):
             )
         index_str = match.group(1)
         
-        raw_filename = f"raw_image{index_str}.png"
+        raw_filename = f"captured_frame_{index_str}.png"
         
         diffused_path = os.path.join(self.diffused_dir, diffused_filename)
         clean_path    = os.path.join(self.clean_dir, raw_filename)

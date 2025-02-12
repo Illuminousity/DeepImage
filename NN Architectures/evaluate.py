@@ -3,7 +3,8 @@ import torch
 import torch.optim as optim
 from torch.utils.data import  DataLoader
 from torchvision import transforms
-from PICNNModel import PICNN, PhysicsLoss, DiffusionDataset
+from VGGNetModel import VGGNet20
+from PICNNModel import PICNN
 from PIL import Image
 import matplotlib.pyplot as plt
 import cv2
@@ -21,7 +22,7 @@ def FormatImage(image):
 if __name__ == "__main__":
     # 3A: Load your saved model
     model = PICNN()
-    checkpoint_path = "PICNN20_undiffusion_50_full_physics.pth"  # Path to your saved weights
+    checkpoint_path = "PICNN20_undiffusion_1500_no_physics.pth"  # Path to your saved weights
     model.load_state_dict(torch.load(checkpoint_path, map_location="cpu"))
     model.eval()
 
@@ -32,9 +33,9 @@ if __name__ == "__main__":
     ])
 
     # 3C: Load a diffused test image
-    diffused_path = "./DMD/1500 GRIT/captured_frame_3.png" # Path to your diffused image
+    diffused_path = "./DMD/1500 GRIT/captured_frame_4.png" # Path to your diffused image
     diffused_img = Image.open(diffused_path).convert("L")
-    actual_path = "./Images/Raw/raw_image3.png"
+    actual_path = "./DMD/Raw/captured_frame_4.png"
     actual_img = Image.open(actual_path).convert("L")
     
     # Apply transform & create batch dimension

@@ -65,7 +65,7 @@ class VGGNet20(nn.Module):
 # 2. Physics-BASED LOSS
 ############################
 class SpecklePhysicsLoss(nn.Module):
-    def __init__(self, wave_number=(2 * 3.14159265359 / 660e-9), lambda_helm=0.1, lambda_speckle=0.05, lambda_fourier=0.05):
+    def __init__(self, wave_number=(2 * 3.14159265359 / 660e-9), lambda_helm=0, lambda_speckle=0, lambda_fourier=0):
         super(SpecklePhysicsLoss, self).__init__()
         self.wave_number = wave_number
         self.lambda_helm = lambda_helm
@@ -88,10 +88,6 @@ class SpecklePhysicsLoss(nn.Module):
         # Standard Reconstruction Loss (L1 loss)
         data_loss = F.l1_loss(pred, target)
 
-        # Helmholtz PDE Loss
-        lap_pred = F.conv2d(pred, self.laplacian_kernel, padding=1)
-        helmholtz_residual = lap_pred + (self.wave_number**2) * pred
-        helmholtz_loss = F.mse_loss(helmholtz_residual, torch.zeros_like(helmholtz_residual))
 
         # Speckle Statistics Loss
         mean_pred = torch.mean(pred)
@@ -104,7 +100,7 @@ class SpecklePhysicsLoss(nn.Module):
         fourier_loss = F.l1_loss(torch.abs(pred_fft), torch.abs(target_fft))
 
         # Total loss
-        total_loss = data_loss + self.lambda_helm * helmholtz_loss + self.lambda_speckle * speckle_loss + self.lambda_fourier * fourier_loss
+        total_loss = data_loss +  self.lambda_speckle * speckle_loss + self.lambda_fourier * fourier_loss
 
         return total_loss
 
@@ -118,7 +114,7 @@ class DiffusionDataset(Dataset):
         self.clean_dir = clean_dir
         self.transform = transform
         
-        pattern = re.compile(r'^diffused_image(\d+)\.png$')
+        pattern = re.compile(r'^captured_frame_(\d+)\.png$')
         self.diffused_files = []
         
         for fname in os.listdir(self.diffused_dir):
@@ -133,14 +129,14 @@ class DiffusionDataset(Dataset):
     def __getitem__(self, idx):
         diffused_filename = self.diffused_files[idx]
         
-        match = re.match(r'^diffused_image(\d+)\.png$', diffused_filename)
+        match = re.match(r'^captured_frame_(\d+)\.png$', diffused_filename)
         if not match:
             raise ValueError(
                 f"File {diffused_filename} does not match 'diffused_image<number>.png' naming."
             )
         index_str = match.group(1)
         
-        raw_filename = f"raw_image{index_str}.png"
+        raw_filename = f"captured_frame_{index_str}.png"
         
         diffused_path = os.path.join(self.diffused_dir, diffused_filename)
         clean_path    = os.path.join(self.clean_dir, raw_filename)
