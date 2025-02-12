@@ -1,3 +1,4 @@
 # Ignore EMNIST DB & Data
 /data
 /Images
+./vggnet*
