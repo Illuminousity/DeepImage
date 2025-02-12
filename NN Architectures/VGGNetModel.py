@@ -12,55 +12,46 @@ from PIL import Image
 class VGGNet20(nn.Module):
     def __init__(self):
         super(VGGNet20, self).__init__()
-        
+
         # Input Convolution
         self.input_conv = nn.Conv2d(1, 64, kernel_size=3, padding=1)
-        
-        # Convolutional Blocks (Reduced Feature Maps)
+
+        # Convolutional Blocks (Restored Feature Maps)
         self.conv_layers = nn.Sequential(
             nn.Conv2d(64, 128, kernel_size=3, padding=1), nn.ReLU(),
-            nn.Conv2d(128, 128, kernel_size=3, padding=1), nn.ReLU(),
             nn.Conv2d(128, 256, kernel_size=3, padding=1), nn.ReLU(),
-            nn.Conv2d(256, 256, kernel_size=3, padding=1), nn.ReLU(),
-            nn.Conv2d(256, 256, kernel_size=3, padding=1), nn.ReLU(),
+            nn.Conv2d(256, 512, kernel_size=3, padding=1), nn.ReLU(),  # Restored 512 filters
+            nn.Conv2d(512, 512, kernel_size=3, padding=1), nn.ReLU(),
         )
-        
-        # Pooling & Reshape (Adaptive Pooling to Reduce FC Layer Size)
-        self.pool = nn.MaxPool2d(kernel_size=2, stride=2)  # Output: (batch, 256, 128, 96)
-        self.global_avg_pool = nn.AdaptiveAvgPool2d((8, 8))  # Output: (batch, 256, 8, 8)
-        
-        # Fully Connected Layers (Reduced Size)
-        self.fc1 = nn.Linear(256 * 8 * 8, 512)
-        self.fc2 = nn.Linear(512, 256 * 8 * 8)
-        
-        # Upsampling & Output Layers
-        self.upsample = nn.Upsample(size=(192, 256), mode="bilinear", align_corners=False)
-        self.output_conv = nn.Conv2d(256, 1, kernel_size=3, padding=1)
+
+        # Pooling (Only MaxPool, Removed Adaptive Pooling)
+        self.pool = nn.MaxPool2d(kernel_size=2, stride=2)
+
+        # Fully Connected Layers (Restored Larger Size)
+        self.fc1 = nn.Linear(512 * 16 * 12, 1024)  # Increased layer size
+        self.fc2 = nn.Linear(1024, 512 * 16 * 12)
+
+        # Upsampling (Restored Transposed Conv Instead of Upsample)
+        self.upsample = nn.ConvTranspose2d(512, 512, kernel_size=4, stride=2, padding=1)
+        self.output_conv = nn.Conv2d(512, 1, kernel_size=3, padding=1)
 
     def forward(self, x):
-        # Input Layer
         x = F.relu(self.input_conv(x))
-        
-        # Convolution Blocks
         x = self.conv_layers(x)
-        
-        # Pooling
-        x = self.pool(x)  # Output: (batch, 256, 128, 96)
-        x = self.global_avg_pool(x)  # Output: (batch, 256, 8, 8)
-        
+        x = self.pool(x)  # Output: (batch, 512, 16, 12)
+
         # Flatten & Fully Connected
-        b, c, h, w = x.shape  # Expecting (batch, 256, 8, 8)
-        x = x.view(b, -1)  # Flatten
+        b, c, h, w = x.shape
+        x = x.view(b, -1)
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
-        x = x.view(b, 256, 8, 8)  # Reshape correctly
-        
-        # Upsample & Output
-        x = self.upsample(x)  # (batch, 256, 192, 256)
-        x = self.output_conv(x)
-        
-        return x
+        x = x.view(b, 512, 16, 12)
 
+        # Upsample & Output
+        x = self.upsample(x)
+        x = self.output_conv(x)
+
+        return x
 ############################
 # 2. Physics-BASED LOSS
 ############################
