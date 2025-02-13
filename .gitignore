@@ -2,3 +2,4 @@
 /data
 /Images
 ./vggnet*
+*.pyc
