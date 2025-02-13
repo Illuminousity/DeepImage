@@ -8,6 +8,7 @@ from PICNNModel import PICNN
 from PIL import Image
 import matplotlib.pyplot as plt
 import cv2
+from HybridResNetUNetModel import ResNetUNet
 
 
 def FormatImage(image):
@@ -21,8 +22,8 @@ def FormatImage(image):
 # ================================
 if __name__ == "__main__":
     # 3A: Load your saved model
-    model = VGGNet20()
-    checkpoint_path = "vggnet20_undiffusion_1500GRIT_speckle_physics.pth"  # Path to your saved weights
+    model = ResNetUNet()
+    checkpoint_path = "resnet_unet_undiffusion_120GRIT.pth"  # Path to your saved weights
     model.load_state_dict(torch.load(checkpoint_path, map_location="cpu"))
     model.eval()
 
@@ -31,9 +32,9 @@ if __name__ == "__main__":
         transforms.ToTensor()    ])
 
     # 3C: Load a diffused test image
-    diffused_path = "./DMD/1500 GRIT/captured_frame_982.png" # Path to your diffused image
+    diffused_path = "./DMD/120 GRIT/captured_frame_92.png" # Path to your diffused image
     diffused_img = Image.open(diffused_path).convert("L")
-    actual_path = "./DMD/Raw/captured_frame_982.png"
+    actual_path = "./DMD/Raw/captured_frame_92.png"
     actual_img = Image.open(actual_path).convert("L")
     
     # Apply transform & create batch dimension
