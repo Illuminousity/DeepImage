@@ -31,9 +31,9 @@ if __name__ == "__main__":
         transforms.ToTensor()    ])
 
     # 3C: Load a diffused test image
-    diffused_path = "./DMD/600 GRIT/captured_frame_0.png" # Path to your diffused image
+    diffused_path = "./DMD/600 GRIT/captured_frame_1.png" # Path to your diffused image
     diffused_img = Image.open(diffused_path).convert("L")
-    actual_path = "./DMD/Raw/captured_frame_0.png"
+    actual_path = "./DMD/Raw/captured_frame_1.png"
     actual_img = Image.open(actual_path).convert("L")
     
     # Apply transform & create batch dimension
@@ -44,7 +44,6 @@ if __name__ == "__main__":
         output_tensor = model(input_tensor)
 
     # 3E: Denormalize the output if you normalized
-    output_tensor = output_tensor * 0.5 + 0.5  # invert normalization
     output_tensor = torch.clamp(output_tensor, 0, 1)
 
     # Convert to PIL for visualization
