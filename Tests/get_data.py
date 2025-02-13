@@ -6,7 +6,7 @@ from ALP4 import *
 from load_emnist import GetImage
 from thorlabs_tsi_sdk.tl_camera import TLCameraSDK, OPERATION_MODE
 
-# Function to format an image for the DMD
+# Function to format an image for the DMD with inversion
 def FormatImage(num, DMD):
     img = GetImage(num).astype(np.float32)
     img_8bit = img * (2**8 - 1)  # Scale to [0..255]
@@ -18,6 +18,14 @@ def FormatImage(num, DMD):
     canvas[y_off:y_off+192, x_off:x_off+256] = img_resized
     return canvas
 
+# Function to process captured images
+def process_captured_images(original_img, inverted_img):
+    _, binary_orig = cv2.threshold(original_img, 127, 1, cv2.THRESH_BINARY)
+    _, binary_inv = cv2.threshold(inverted_img, 127, 1, cv2.THRESH_BINARY)
+    
+    # Combine the images: If either contains 1, set final as 1
+    refined_img = np.logical_or(binary_orig, binary_inv).astype(np.uint8) * 255
+    return refined_img
 
 try:
     from camera_setup import configure_path
@@ -25,12 +33,11 @@ try:
 except ImportError:
     configure_path = None
 
-
 # Initialize the DMD
 dmd = ALP4(version='4.3')
 dmd.Initialize()
 dmd.SeqAlloc(nbImg=1, bitDepth=8)
-dmd.SetTiming(pictureTime=12500)
+dmd.SetTiming(pictureTime=5000)
 
 # Initialize the camera
 with TLCameraSDK() as sdk:
@@ -41,14 +48,14 @@ with TLCameraSDK() as sdk:
 
     with sdk.open_camera(available_cameras[0]) as camera:
         print(f"Opened camera: {camera.model} (SN: {camera.serial_number})")
-        camera.roi_width_pixels = 476
-        camera.roi_height_pixels = 432
-        camera.roi_x_pixels = 568
-        camera.roi_y_pixels = 224
+        camera.roi_width_pixels = 128
+        camera.roi_height_pixels = 128
+        camera.roi_x_pixels = 728
+        camera.roi_y_pixels = 348
         camera.exposure_time_us = 100
         camera.frames_per_trigger_zero_for_unlimited = 0
         camera.image_poll_timeout_ms = 0
-        camera.frame_rate_control_value = 80
+        camera.frame_rate_control_value = 200
         camera.is_frame_rate_control_enabled = True
         camera.arm(2)
 
@@ -75,7 +82,7 @@ with TLCameraSDK() as sdk:
                 # Mirror the image both horizontally and vertically
                 mirrored_image = cv2.flip(nd_image_array, -1)
                 
-                filename = f"./DMD/1500 GRIT/captured_frame_{i}.png"
+                filename = f"./DMD/Raw/captured_frame_{i}.png"
                 cv2.imwrite(filename, mirrored_image)
                 print(f"Saved {filename}")
 

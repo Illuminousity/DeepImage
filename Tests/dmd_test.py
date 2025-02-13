@@ -54,9 +54,8 @@ imgSeq=[]
 image1 = FormatImage(3,DMD) 
 print(image1.__class__)
 image2 = FormatImage(2,DMD)
-
-
-
+image1 = np.ones((DMD.nSizeY, DMD.nSizeX), dtype=np.uint8)*255
+image1 = FormatImage(3,DMD) 
 imgSeqTest3 = np.ravel(np.array(np.resize(GetImage(105),[1024,768]))*(2**8-1))
 for i in range(1,20):
     image= GetImage(i)
@@ -76,7 +75,7 @@ DMD.SeqAlloc(nbImg = 1, bitDepth = 8)
 # Send the image sequence as a 1D list/array/numpy array
 DMD.SeqPut(imgData = image1)
 # Set image rate to 50 Hz
-DMD.SetTiming(pictureTime = 12500)
+DMD.SetTiming(pictureTime = 5000)
 
 # Run the sequence in an infinite loop
 DMD.Run()
