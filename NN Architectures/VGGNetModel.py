@@ -1,10 +1,8 @@
-import os
-import re
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.utils.data import Dataset
-from PIL import Image
+
+
 
 ############################
 # 1. OPTIMIZED VGGNET-20 STYLE MODEL
@@ -82,19 +80,19 @@ class SpecklePhysicsLoss(nn.Module):
 
         # Standard Reconstruction Loss (L1 loss)
         data_loss = F.l1_loss(pred, target)
-        #print("Data loss:", data_loss.item())
+        print("Data loss:", data_loss.item())
 
         # Speckle Statistics Loss
         mean_pred = torch.mean(pred)
         var_pred = torch.var(pred)
         speckle_loss = F.mse_loss(var_pred / (mean_pred**2), torch.tensor(1.0, device=pred.device))
-        #print("Speckle loss:", speckle_loss.item())
+        print("Speckle loss:", speckle_loss.item())
 
         # Fourier Spectrum Loss
         pred_fft = torch.fft.fft2(pred)
         target_fft = torch.fft.fft2(target)
         fourier_loss = (F.l1_loss(torch.abs(pred_fft), torch.abs(target_fft)))/ (pred.shape[2] * pred.shape[3])
-        #print("Fourier loss:", fourier_loss.item())
+        print("Fourier loss:", fourier_loss.item())
         
 
         # Total loss
@@ -102,48 +100,5 @@ class SpecklePhysicsLoss(nn.Module):
 
         return total_loss
 
-############################
-# 3. FIXED DATASET
-############################
-class DiffusionDataset(Dataset):
-    def __init__(self, diffused_dir, clean_dir, transform=None):
-        super().__init__()
-        self.diffused_dir = diffused_dir
-        self.clean_dir = clean_dir
-        self.transform = transform
-        
-        pattern = re.compile(r'^captured_frame_(\d+)\.png$')
-        self.diffused_files = []
-        
-        for fname in os.listdir(self.diffused_dir):
-            if pattern.match(fname):
-                self.diffused_files.append(fname)
-        
-        self.diffused_files.sort(key=lambda x: int(pattern.match(x).group(1)))
 
-    def __len__(self):
-        return len(self.diffused_files)
 
-    def __getitem__(self, idx):
-        diffused_filename = self.diffused_files[idx]
-        
-        match = re.match(r'^captured_frame_(\d+)\.png$', diffused_filename)
-        if not match:
-            raise ValueError(
-                f"File {diffused_filename} does not match 'captured_frame<number>.png' naming."
-            )
-        index_str = match.group(1)
-        
-        raw_filename = f"captured_frame_{index_str}.png"
-        
-        diffused_path = os.path.join(self.diffused_dir, diffused_filename)
-        clean_path    = os.path.join(self.clean_dir, raw_filename)
-        
-        diffused_img = Image.open(diffused_path).convert('L')
-        clean_img    = Image.open(clean_path).convert('L')
-
-        if self.transform:
-            diffused_img = self.transform(diffused_img)
-            clean_img    = self.transform(clean_img)
-
-        return diffused_img, clean_img

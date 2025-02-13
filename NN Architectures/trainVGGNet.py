@@ -4,7 +4,8 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 import matplotlib.pyplot as plt  
 import sys
-from VGGNetModel import VGGNet20, SpecklePhysicsLoss, DiffusionDataset
+from VGGNetModel import VGGNet20, SpecklePhysicsLoss
+from DiffusionDataset import DiffusionDataset
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
@@ -62,7 +63,7 @@ if __name__ == '__main__':
         plt.grid(True)
         plt.show()
     
-    train_model(model, dataloader, criterion, optimizer, device, num_epochs=3)
+    train_model(model, dataloader, criterion, optimizer, device, num_epochs=10)
     
     # Save model
     torch.save(model.state_dict(), model_filename)
