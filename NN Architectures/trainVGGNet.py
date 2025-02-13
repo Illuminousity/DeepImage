@@ -62,7 +62,7 @@ if __name__ == '__main__':
         plt.grid(True)
         plt.show()
     
-    train_model(model, dataloader, criterion, optimizer, device, num_epochs=10)
+    train_model(model, dataloader, criterion, optimizer, device, num_epochs=3)
     
     # Save model
     torch.save(model.state_dict(), model_filename)
