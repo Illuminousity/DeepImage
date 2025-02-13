@@ -82,19 +82,19 @@ class SpecklePhysicsLoss(nn.Module):
 
         # Standard Reconstruction Loss (L1 loss)
         data_loss = F.l1_loss(pred, target)
-        print("Data loss:", data_loss.item())
+        #print("Data loss:", data_loss.item())
 
         # Speckle Statistics Loss
         mean_pred = torch.mean(pred)
         var_pred = torch.var(pred)
         speckle_loss = F.mse_loss(var_pred / (mean_pred**2), torch.tensor(1.0, device=pred.device))
-        print("Speckle loss:", speckle_loss.item())
+        #print("Speckle loss:", speckle_loss.item())
 
         # Fourier Spectrum Loss
         pred_fft = torch.fft.fft2(pred)
         target_fft = torch.fft.fft2(target)
         fourier_loss = (F.l1_loss(torch.abs(pred_fft), torch.abs(target_fft)))/ (pred.shape[2] * pred.shape[3])
-        print("Fourier loss:", fourier_loss.item())
+        #print("Fourier loss:", fourier_loss.item())
         
 
         # Total loss
