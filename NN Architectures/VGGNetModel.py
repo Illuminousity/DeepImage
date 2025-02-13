@@ -93,8 +93,9 @@ class SpecklePhysicsLoss(nn.Module):
         # Fourier Spectrum Loss
         pred_fft = torch.fft.fft2(pred)
         target_fft = torch.fft.fft2(target)
-        fourier_loss = F.l1_loss(torch.abs(pred_fft), torch.abs(target_fft))
+        fourier_loss = (F.l1_loss(torch.abs(pred_fft), torch.abs(target_fft)))/ (pred.shape[2] * pred.shape[3])
         print("Fourier loss:", fourier_loss.item())
+        
 
         # Total loss
         total_loss = data_loss + self.lambda_speckle * speckle_loss + self.lambda_fourier * fourier_loss

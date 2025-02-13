@@ -21,21 +21,19 @@ def FormatImage(image):
 # ================================
 if __name__ == "__main__":
     # 3A: Load your saved model
-    model = PICNN()
-    checkpoint_path = "PICNN20_undiffusion_1500_no_physics.pth"  # Path to your saved weights
+    model = VGGNet20()
+    checkpoint_path = "vggnet20_undiffusion_1500GRIT_speckle_physics.pth"  # Path to your saved weights
     model.load_state_dict(torch.load(checkpoint_path, map_location="cpu"))
     model.eval()
 
     # 3B: Define the same image transforms used for training
     test_transform = transforms.Compose([  # or whatever size you used
-        transforms.ToTensor(),
-        transforms.Normalize((0.5,), (0.5,))
-    ])
+        transforms.ToTensor()    ])
 
     # 3C: Load a diffused test image
-    diffused_path = "./DMD/1500 GRIT/captured_frame_4.png" # Path to your diffused image
+    diffused_path = "./DMD/1500 GRIT/captured_frame_982.png" # Path to your diffused image
     diffused_img = Image.open(diffused_path).convert("L")
-    actual_path = "./DMD/Raw/captured_frame_4.png"
+    actual_path = "./DMD/Raw/captured_frame_982.png"
     actual_img = Image.open(actual_path).convert("L")
     
     # Apply transform & create batch dimension

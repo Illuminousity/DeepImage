@@ -57,13 +57,12 @@ if __name__ == '__main__':
     
     # Create model, loss, optimizer
     model = VGGNet20().to(device)
-    criterion = SpecklePhysicsLoss(wave_number=(2*3.1415926 / 660e-9)).to(device)
+    criterion = SpecklePhysicsLoss(wave_number=(2*3.1415926 / 660e-9), lambda_speckle=0.5, lambda_fourier=0.01).to(device)
     optimizer = optim.Adam(model.parameters(), lr=1e-3)
     
     # Transforms: e.g.  normalizing
     transform = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize((0.5,), (0.5,))
+        transforms.ToTensor()
     ])
     
     # Folders
@@ -75,8 +74,8 @@ if __name__ == '__main__':
     dataloader = DataLoader(dataset, batch_size=4, shuffle=True)
     
     # Train & plot
-    train_model(model, dataloader, criterion, optimizer, device, num_epochs=3)
+    train_model(model, dataloader, criterion, optimizer, device, num_epochs=10)
     
     # Save model
-    torch.save(model.state_dict(), "vggnet20_undiffusion_10_full_physics.pth")
+    torch.save(model.state_dict(), "vggnet20_undiffusion_1500GRIT_speckle_physics.pth")
     print("Model saved.")
