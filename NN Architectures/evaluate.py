@@ -32,9 +32,9 @@ if __name__ == "__main__":
         transforms.ToTensor()    ])
 
     # 3C: Load a diffused test image
-    diffused_path = "./DMD/120 GRIT/captured_frame_92.png" # Path to your diffused image
+    diffused_path = "./DMD/Testing Data/120 GRIT/captured_frame_4003.png" # Path to your diffused image
     diffused_img = Image.open(diffused_path).convert("L")
-    actual_path = "./DMD/Raw/captured_frame_92.png"
+    actual_path = "./DMD/Testing Data/RAW/captured_frame_4003.png"
     actual_img = Image.open(actual_path).convert("L")
     
     # Apply transform & create batch dimension
