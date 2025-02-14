@@ -23,7 +23,7 @@ def FormatImage(image):
 if __name__ == "__main__":
     # 3A: Load your saved model
     model = ResNetUNet()
-    checkpoint_path = "resnet_unet_undiffusion_120GRIT.pth"  # Path to your saved weights
+    checkpoint_path = "resnet_unet_undiffusion_600GRIT.pth"  # Path to your saved weights
     model.load_state_dict(torch.load(checkpoint_path, map_location="cpu"))
     model.eval()
 
@@ -32,9 +32,9 @@ if __name__ == "__main__":
         transforms.ToTensor()    ])
 
     # 3C: Load a diffused test image
-    diffused_path = "./DMD/Testing Data/120 GRIT/captured_frame_4003.png" # Path to your diffused image
+    diffused_path = "./DMD/Testing Data/600 GRIT/captured_frame_4063.png" # Path to your diffused image
     diffused_img = Image.open(diffused_path).convert("L")
-    actual_path = "./DMD/Testing Data/RAW/captured_frame_4003.png"
+    actual_path = "./DMD/Testing Data/RAW/captured_frame_4063.png"
     actual_img = Image.open(actual_path).convert("L")
     
     # Apply transform & create batch dimension
@@ -65,7 +65,7 @@ if __name__ == "__main__":
 
 
     plt.subplot(1,3,3)
-    plt.title("PI-CNN Output")
+    plt.title("Output")
     plt.imshow(output_image, cmap="gray")
     plt.axis("off")
     plt.show()
