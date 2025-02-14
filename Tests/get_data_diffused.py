@@ -24,7 +24,7 @@ def FormatImage(num, DMD, invert=False):
 def process_multiple_captured_images(image_list):
     # Compute the pixel-wise median to retain consistent features
     combined_image = np.median(np.stack(image_list, axis=0), axis=0).astype(np.uint8)
-    # RAW ONLY - _, combined_image = cv2.threshold(combined_image, 249, 255, cv2.THRESH_BINARY)
+    # RAW ONLY _, combined_image = cv2.threshold(combined_image, 249, 255, cv2.THRESH_BINARY)
     return combined_image
 
 try:
@@ -52,7 +52,7 @@ with TLCameraSDK() as sdk:
         camera.roi_height_pixels = 128
         camera.roi_x_pixels = 728
         camera.roi_y_pixels = 348
-        camera.exposure_time_us = 2000
+        camera.exposure_time_us = 2000 # 200 for RAW, 2000 for Diffused
         camera.frames_per_trigger_zero_for_unlimited = 0
         camera.image_poll_timeout_ms = 0
         camera.frame_rate_control_value = 200
@@ -60,7 +60,7 @@ with TLCameraSDK() as sdk:
         camera.arm(2)
 
         try:
-            for i in range(0, 999):
+            for i in range(4000, 5000):
                 image_list = []
                 
                 dmd.FreeSeq()
@@ -85,7 +85,7 @@ with TLCameraSDK() as sdk:
                 refined_image = process_multiple_captured_images(image_list)
                 mirrored_image = cv2.flip(refined_image, -1)
 
-                filename = f"./DMD/120 GRIT/captured_frame_{i}.png"
+                filename = f"./DMD/Testing Data/120 GRIT/captured_frame_{i}.png"
                 cv2.imwrite(filename, mirrored_image)
                 print(f"Saved {filename}")
 
