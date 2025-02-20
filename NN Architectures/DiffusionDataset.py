@@ -4,7 +4,7 @@ import os
 from torch.utils.data import Dataset
 
 class DiffusionDataset(Dataset):
-    def __init__(self, diffused_dir, clean_dir, transform=None):
+    def __init__(self, diffused_dir, clean_dir, transform=None, cap=60000):
         super().__init__()
         self.diffused_dir = diffused_dir
         self.clean_dir = clean_dir
@@ -12,10 +12,12 @@ class DiffusionDataset(Dataset):
         
         pattern = re.compile(r'^captured_frame_(\d+)\.png$')
         self.diffused_files = []
+        diffused = os.listdir(self.diffused_dir)
+        for i in range(int(cap)):
+            if pattern.match(diffused[i]):
+                self.diffused_files.append(diffused[i])
+
         
-        for fname in os.listdir(self.diffused_dir):
-            if pattern.match(fname):
-                self.diffused_files.append(fname)
         
         self.diffused_files.sort(key=lambda x: int(pattern.match(x).group(1)))
 

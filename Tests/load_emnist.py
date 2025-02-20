@@ -3,16 +3,17 @@ import torchvision
 import torchvision.transforms as transforms
 import matplotlib.pyplot as plt
 
-def LoadDataset():
+def LoadDataset(mode):
 
     transform = transforms.Compose([transforms.ToTensor()])
 
     # Load the EMNIST dataset (letters subset)
-    return torchvision.datasets.EMNIST(root="./data", split="letters", train=True, download=True, transform=transform)
+    return torchvision.datasets.EMNIST(root="./data", split="letters", train=mode, download=True, transform=transform)
 
-def GetImage(index):
+def GetImage(index,dataset=LoadDataset(True)):
     # Define transform to convert PIL images to tensors
-    emnist = LoadDataset()
+    
+    emnist = dataset
 
     # Example: Load a single image
     image, label = emnist[index]  # Get first image and label

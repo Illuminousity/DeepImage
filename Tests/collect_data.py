@@ -3,12 +3,12 @@ import cv2
 import time
 import sys
 from ALP4 import *
-from load_emnist import GetImage
+from load_emnist import GetImage, LoadDataset
 from thorlabs_tsi_sdk.tl_camera import TLCameraSDK, OPERATION_MODE
 
 # Function to format an image for the DMD with inversion
-def FormatImage(num, DMD, invert=False):
-    img = GetImage(num).astype(np.float32)
+def FormatImage(num, DMD,dataset,invert=False):
+    img = GetImage(num,dataset).astype(np.float32)
     img_8bit = img * (2**8 - 1)  # Scale to [0..255]
     if invert:
         img_8bit = 255 - img_8bit  # Invert image
@@ -24,7 +24,7 @@ def FormatImage(num, DMD, invert=False):
 def process_multiple_captured_images(image_list):
     # Compute the pixel-wise median to retain consistent features
     combined_image = np.median(np.stack(image_list, axis=0), axis=0).astype(np.uint8)
-    _, combined_image = cv2.threshold(combined_image, 249, 255, cv2.THRESH_BINARY)
+    # RAW ONLY - _, combined_image = cv2.threshold(combined_image, 249, 255, cv2.THRESH_BINARY)
     return combined_image
 
 try:
@@ -32,6 +32,10 @@ try:
     configure_path()
 except ImportError:
     configure_path = None
+# mode = False means Test Data, mode = True means Training Data
+time_s = time.time()
+mode = False
+emnist = LoadDataset(mode)
 
 # Initialize the DMD
 dmd = ALP4(version='4.3')
@@ -52,7 +56,7 @@ with TLCameraSDK() as sdk:
         camera.roi_height_pixels = 128
         camera.roi_x_pixels = 728
         camera.roi_y_pixels = 348
-        camera.exposure_time_us = 300 # 200 for RAW, 2000 for Diffused
+        camera.exposure_time_us = 300 # 200 for RAW, 300 for 220 GRIT and above, # 600 for 120 GRIT
         camera.frames_per_trigger_zero_for_unlimited = 0
         camera.image_poll_timeout_ms = 1000
         camera.frame_rate_control_value = 200
@@ -60,12 +64,12 @@ with TLCameraSDK() as sdk:
         camera.arm(2)
 
         try:
-            for i in range(0, 60000):
+            for i in range(0, 10000):
                 image_list = []
                 
                 dmd.FreeSeq()
                 dmd.SeqAlloc(nbImg=1, bitDepth=8)
-                image = FormatImage(i, dmd, invert=False)
+                image = FormatImage(i, dmd, emnist,invert=False)
                 dmd.SeqPut(imgData=image)
                 dmd.Run()
                 time.sleep(0.0075)
@@ -85,7 +89,7 @@ with TLCameraSDK() as sdk:
                 refined_image = process_multiple_captured_images(image_list)
                 mirrored_image = cv2.flip(refined_image, -1)
 
-                filename = f"./DMD/RAW/captured_frame_{i}.png"
+                filename = f"./DMD/Testing/220 GRIT/captured_frame_{i}.png"
                 cv2.imwrite(filename, mirrored_image)
 
                 dmd.Halt()
@@ -98,3 +102,4 @@ with TLCameraSDK() as sdk:
             camera.disarm()
 
 print("Program completed.")
+print(f"Time Taken: {time.time()-time_s}")

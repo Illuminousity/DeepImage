@@ -8,7 +8,8 @@ from PICNNModel import PICNN
 from PIL import Image
 import matplotlib.pyplot as plt
 import cv2
-from HybridResNetUNetModel import ResNetUNet
+from HybridResNetUNetModel import ResNetUNetSegmentation
+from HybridEfficientNetUNetModel import EfficientNetUNetSegmentation
 
 
 def FormatImage(image):
@@ -22,8 +23,8 @@ def FormatImage(image):
 # ================================
 if __name__ == "__main__":
     # 3A: Load your saved model
-    model = ResNetUNet()
-    checkpoint_path = "resnet_unet_undiffusion_600GRIT.pth"  # Path to your saved weights
+    model = EfficientNetUNetSegmentation()
+    checkpoint_path = "effnet_unet_simplified_120_10000size.pth"  # Path to your saved weights
     model.load_state_dict(torch.load(checkpoint_path, map_location="cpu"))
     model.eval()
 
@@ -32,9 +33,9 @@ if __name__ == "__main__":
         transforms.ToTensor()    ])
 
     # 3C: Load a diffused test image
-    diffused_path = "./DMD/Testing Data/600 GRIT/captured_frame_4063.png" # Path to your diffused image
+    diffused_path = "./DMD/Testing/120 GRIT/captured_frame_6774.png" # Path to your diffused image
     diffused_img = Image.open(diffused_path).convert("L")
-    actual_path = "./DMD/Testing Data/RAW/captured_frame_4063.png"
+    actual_path = "./DMD/Testing/RAW/captured_frame_6774.png"
     actual_img = Image.open(actual_path).convert("L")
     
     # Apply transform & create batch dimension
@@ -45,8 +46,6 @@ if __name__ == "__main__":
         output_tensor = model(input_tensor)
 
     # 3E: Denormalize the output if you normalized
-    output_tensor = output_tensor * 0.5 + 0.5  # invert normalization
-    output_tensor = torch.clamp(output_tensor, 0, 1)
 
     # Convert to PIL for visualization
     output_image = transforms.ToPILImage()(output_tensor.squeeze(0))

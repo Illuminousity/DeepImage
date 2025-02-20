@@ -10,11 +10,12 @@ import os
 
 from HybridResNetUNetModel import ResNetUNetSegmentation
 from HybridVGGNetUNetModel import VGGUNetSegmentation
+from HybridEfficientNetUNetModel import EfficientNetUNetSegmentation
 from DiffusionDataset import DiffusionDataset
 
 def train_model(model, dataloader, optimizer, device, num_epochs=10):
     model.train()
-    criterion = nn.BCEWithLogitsLoss()  # or nn.MSELoss()
+    criterion = nn.L1Loss()  # or nn.MSELoss()
 
     epoch_losses = []
     for epoch in range(num_epochs):
@@ -49,42 +50,35 @@ def train_model(model, dataloader, optimizer, device, num_epochs=10):
     plt.show()
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
+    if len(sys.argv) != 3:
         print("Usage: python trainResNetUNet.py <GRIT_VALUE>")
         sys.exit(1)
-
+    cap = sys.argv[2]
     grit_value = sys.argv[1]
     diffused_dir = f"./DMD/{grit_value} GRIT"
     clean_dir = "./DMD/Raw"
-    model_filename = f"resnet_unet_simplified_{grit_value}.pth"
-    model2_filename = f"vggnet_unet_simplified_{grit_value}.pth"
+    model_filename = f"effnet_unet_simplified_{grit_value}_{cap}size.pth"
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # Create model
-    model = ResNetUNetSegmentation().to(device)
-    model2 = VGGUNetSegmentation().to(device)
+    model = EfficientNetUNetSegmentation().to(device)
     # Optimizer (Adam or SGD)
-    optimizer = optim.Adam(model.parameters(), lr=1e-3)
-    optimizer2 = optim.Adam(model2.parameters(), lr=1e-3)
+    optimizer = optim.Adam(model.parameters(), lr=1e-4)
     # Simple transforms
-    transform = transforms.Compose([
-    transforms.RandomHorizontalFlip(),
-    transforms.RandomVerticalFlip(),
-    transforms.RandomRotation(10),  # small rotation
+    transform = transforms.Compose([ 
     transforms.ToTensor()
 ])
 
 
     # Create dataset & loader
-    dataset = DiffusionDataset(diffused_dir, clean_dir, transform=transform)
+    dataset = DiffusionDataset(diffused_dir, clean_dir, transform=transform,cap=cap)
+
     dataloader = DataLoader(dataset, batch_size=8, shuffle=True)
 
     # Train
     train_model(model, dataloader, optimizer, device, num_epochs=15)
-    train_model(model2, dataloader, optimizer2, device, num_epochs=15)
 
     # Save model
     torch.save(model.state_dict(), model_filename)
-    torch.save(model2.state_dict(), model2_filename)
     print(f"Model saved as {model_filename}")

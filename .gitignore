@@ -4,3 +4,5 @@
 /DMD
 ./vggnet*
 *.pyc
+*.pth
+*.png

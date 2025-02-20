@@ -10,10 +10,10 @@ import matplotlib.pyplot as plt
 from HybridResNetUNetModel import ResNetUNetSegmentation, BCEDiceLoss
 from DiffusionDataset import DiffusionDataset  # your custom dataset
 
-def debug_train_model(model, dataloader, device, num_epochs=50):
+def debug_train_model(model, dataloader, device, num_epochs=10):
     model.train()
     # Use BCEWithLogitsLoss for binary segmentation
-    criterion = BCEDiceLoss()
+    criterion = nn.L1Loss()
     optimizer = optim.Adam(model.parameters(), lr=1e-3)
 
     losses = []
@@ -83,7 +83,7 @@ if __name__ == "__main__":
     # Load the full dataset
     transform = transforms.Compose([transforms.ToTensor()])
     full_dataset = DiffusionDataset(
-        diffused_dir="./DMD/120 GRIT/",  # path to your diffused images
+        diffused_dir="./DMD/1500 GRIT/",  # path to your diffused images
         clean_dir="./DMD/Raw/",     # path to your ground truth masks (0 or 1)
         transform=transform
     )
@@ -96,7 +96,7 @@ if __name__ == "__main__":
     debug_loader = DataLoader(small_subset, batch_size=1, shuffle=True)
 
     # Train for 50 epochs or more
-    debug_train_model(model, debug_loader, device, num_epochs=50)
+    debug_train_model(model, debug_loader, device, num_epochs=25)
 
     # See if we can get near-perfect predictions
     visualize_predictions(model, debug_loader, device)
