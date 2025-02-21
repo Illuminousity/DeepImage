@@ -1,0 +1,20 @@
+1000 images
+  Validation Loss: 0.0815
+  Hyperparameters:
+    lr: 0.0005335389180346354
+    weight_decay: 0.00019076151102166965
+    optimizer: Adam
+    batch_size: 12
+    num_epochs: 9
+
+
+
+10000 images
+    Best trial:
+  Validation Loss: 0.0557
+  Hyperparameters:
+    lr: 0.00042314195931242044
+    weight_decay: 2.626834360356283e-05
+    optimizer: Adam
+    batch_size: 4
+    num_epochs: 12

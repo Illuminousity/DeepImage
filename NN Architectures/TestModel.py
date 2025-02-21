@@ -37,17 +37,20 @@ if __name__ == '__main__':
     dataloader = DataLoader(dataset, batch_size=1, shuffle=False)
     
     criterion = nn.L1Loss()
-    total_loss = 0.0
+    total_loss = 0
     
     # Evaluate the model
     with torch.no_grad():
         for i, (diffused, clean) in enumerate(dataloader):
             diffused, clean = diffused.to(device), clean.to(device)
             
-            total_loss = 1
-            
             output = model(diffused)
-            print(i)
+            loss = criterion(output, clean)
+            total_loss += loss.item()  # Accumulate the loss
+            
+            print(f"Batch {i}: Loss = {loss.item():.6f}")
+            
+            
             # Display a sample prediction
             if i == 1:
                 
@@ -71,4 +74,4 @@ if __name__ == '__main__':
                 plt.show()
     
     avg_loss = total_loss / len(dataloader)
-    print(f"Validation Completed. Average MSE Loss: {avg_loss:.6f}")
+    print(f"Validation Completed. Average L1 Loss: {avg_loss:.6f}")
