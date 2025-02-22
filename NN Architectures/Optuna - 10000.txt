@@ -1,0 +1,39 @@
+10000 images - 600
+
+Best trial:
+  Validation Loss: 0.0563
+  Hyperparameters:
+    lr: 0.00046935701377381553
+    weight_decay: 3.756308840949335e-06
+    optimizer: Adam
+    batch_size: 8
+    num_epochs: 10
+
+
+10000 images - 120
+
+Best trial:
+  Validation Loss: 0.1110
+  Hyperparameters:
+    lr: 0.000573935376443032
+    weight_decay: 1.341888268631356e-05
+    optimizer: Adam
+    batch_size: 12
+    num_epochs: 13
+
+
+10000 images - 1500
+
+Best trial:
+  Validation Loss: 0.0353
+  Hyperparameters:
+    lr: 0.0009438834346049782
+    weight_decay: 4.512721527846712e-06
+    optimizer: Adam
+    batch_size: 8
+    num_epochs: 8
+
+
+10000 images - 220
+
+Trial 15 finished with value: 0.05921857322752476 and parameters: {'lr': 0.0003178308866712718, 'weight_decay': 1.071329462854174e-06, 'optimizer': 'Adam', 'batch_size': 8, 'num_epochs': 11}. Best is trial 15 with value: 0.05921857322752476.
