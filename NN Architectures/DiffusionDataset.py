@@ -2,6 +2,7 @@ import re
 from PIL import Image
 import os
 from torch.utils.data import Dataset
+from torchvision import transforms
 
 class DiffusionDataset(Dataset):
     def __init__(self, diffused_dir, clean_dir, transform=None, cap=60000):
@@ -41,9 +42,9 @@ class DiffusionDataset(Dataset):
         
         diffused_img = Image.open(diffused_path).convert('L')
         clean_img    = Image.open(clean_path).convert('L')
-
+        
         if self.transform:
             diffused_img = self.transform(diffused_img)
-            clean_img    = self.transform(clean_img)
+            clean_img = self.transform(clean_img)
 
         return diffused_img, clean_img

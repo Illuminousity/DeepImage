@@ -8,9 +8,13 @@ import argparse
 import os
 
 # Import your segmentation model.
-from HybridEfficientNetUNetModel import EfficientNetUNetSegmentation
+from HybridEfficientNetUNetModel import EfficientNetUNet
+from HybridEfficientNetREDNetModel import EfficientNetREDNet
 # Import your dataset.
 from DiffusionDataset import DiffusionDataset
+
+
+
 
 def train_one_epoch(model, train_loader, optimizer, device):
     """
@@ -46,14 +50,15 @@ def validate(model, val_loader, device):
 
 def objective(trial):
     # Hyperparameter suggestions.
+    
     lr = trial.suggest_float("lr", 1e-5, 1e-3, log=True)
     weight_decay = trial.suggest_float("weight_decay", 1e-6, 1e-3, log=True)
     optimizer_name = trial.suggest_categorical("optimizer", ["Adam", "SGD"])
     batch_size = trial.suggest_int("batch_size", 4, 16, step=4)
-    num_epochs = trial.suggest_int("num_epochs", 5, 15)
+    num_epochs = args.epochs
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = EfficientNetUNetSegmentation().to(device)
+    model = EfficientNetREDNet().to(device)
     
     if optimizer_name == "Adam":
         optimizer = optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
@@ -91,13 +96,15 @@ def objective(trial):
     return val_loss
 
 if __name__ == "__main__":
+    global args
+
     parser = argparse.ArgumentParser(description="Hyperparameter Optimization for EfficientNetUNetSegmentation")
     parser.add_argument("--grit_value", type=str, default="default_grit", help="Grit value for dataset directory")
     parser.add_argument("--cap", type=str, default="default_cap", help="Cap value for dataset")
     parser.add_argument("--n_trials", type=int, default=20, help="Number of Optuna trials")
+    parser.add_argument("--epochs", type=int, default=5, help="Number of Parameters fo optimize for")
     
     args = parser.parse_args()
-    
     # Set up dataset paths.
     grit_value = args.grit_value
     cap = args.cap

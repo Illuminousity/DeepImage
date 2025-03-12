@@ -1,32 +1,31 @@
-# Filename: SegmentResNetUNet.py
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-import torchvision.models as models
-from Encoders.ResNet import ResNetEncoder
-from Decoders.UNet import UNetDecoder
+from Encoders.EfficientNet import EfficientNetEncoder
+from Decoders.REDNet import REDNetDecoder
+
+
+
 
 ########################################################################
-# ResNet Encoder + U-Net Decoder 
+# EfficientNet Encoder + U-Net Decoder 
 ########################################################################
-class ResNetUNet(nn.Module):
+class EfficientNetREDNet(nn.Module):
     def __init__(self):
-        super().__init__()
-        self.encoder = ResNetEncoder()
-        self.decoder = UNetDecoder(layersize=[512,256,128,64],out_channels=1)
-
+        super(EfficientNetREDNet, self).__init__()
+        self.encoder = EfficientNetEncoder()
+        self.decoder = REDNetDecoder(layersize=[384, 136, 48, 32, 40],out_channels=1)
+    
     def forward(self, x):
         s1, s2, s3, s4, s5 = self.encoder(x)
         logits = self.decoder(s1, s2, s3, s4, s5)
         return logits
 
-
 ########################################################################
-# 4. Example Usage
+# Example Usage
 ########################################################################
 if __name__ == "__main__":
-    model = ResNetUNet()
-    # Example input [batch=1, channels=1, H=128, W=128]
+    model = EfficientNetREDNet()
+    # Example input: batch size 1, single-channel, 128x128 image
     sample_input = torch.randn(1, 1, 128, 128)
     out = model(sample_input)
-    print("Output shape:", out.shape)  # [1,1,128,128]
+    print("Output shape:", out.shape)  # Expected output shape: [1, 1, 128, 128]

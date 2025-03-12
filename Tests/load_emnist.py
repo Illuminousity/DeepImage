@@ -27,13 +27,12 @@ def GetImage(index,dataset=LoadDataset(True)):
 
 if __name__ == "__main__":
 
-    emnist = LoadDataset()
+    emnist = LoadDataset(1)
 
-    fig, ax = plt.subplots(1, 1, figsize=(1,1))
-    for i in range():
-        image, label = emnist[i]
-        ax[i].imshow(image,cmap="gray")
-        ax[i].axis('off')
-        print(f"Image {i}/{len(emnist)} loaded")
+    fig, ax = plt.subplots(1, 1, figsize=(3,4))
+    image, label = emnist[0]
+    ax.imshow(image.numpy().squeeze(),cmap="gray")
+    ax.axis('off')
+    print(f"Image {0}/{len(emnist)} loaded")
 
 

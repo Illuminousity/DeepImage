@@ -1,4 +1,4 @@
-1000 images
+1000 images - 1500
   Validation Loss: 0.0815
   Hyperparameters:
     lr: 0.0005335389180346354
@@ -9,7 +9,7 @@
 
 
 
-10000 images
+10000 images - 1500
     Best trial:
   Validation Loss: 0.0557
   Hyperparameters:
@@ -18,3 +18,40 @@
     optimizer: Adam
     batch_size: 4
     num_epochs: 12
+
+
+60000 images - 1500
+
+Trial 12 finished with value: 0.02919220139210423 and parameters: {'lr': 0.0009303785022860124, 'weight_decay': 5.354624329112163e-06, 'optimizer': 'Adam', 'batch_size': 8, 'num_epochs': 5}. Best is trial 12 with value: 0.02919220139210423.
+
+60000 images - 600
+
+Trial 2 finished with value: 0.04882875587791204 and parameters: {'lr': 0.00019734044442396898, 'weight_decay': 2.110167230566919e-06, 'optimizer': 'Adam', 'batch_size': 12, 'num_epochs': 15}. Best is trial 2 with value: 0.04882875587791204.
+
+Trial 7 finished with value: 0.042962325334548954 and parameters: {'lr': 9.249610374223293e-05, 'weight_decay': 8.028164227018713e-06, 'optimizer': 'Adam', 'batch_size': 12, 'num_epochs': 14}. Best is trial 7 with value: 0.042962325334548954.
+
+60000 images - 220
+
+Trial 21 finished with value: 0.04298006511914233 and parameters: {'lr': 0.00013039095274375022, 'weight_decay': 2.8309548942060324e-06, 'optimizer': 'Adam', 'batch_size': 4, 'num_epochs': 12}.
+
+
+60000 images - 120
+
+Trial 13 finished with value: 0.04832607520247499 and parameters: {'lr': 0.00014852464079805945, 'weight_decay': 1.0368236067637897e-05, 'optimizer': 'Adam', 'batch_size': 8, 'num_epochs': 15}. Best is trial 13 with value: 0.04832607520247499.
+
+Trial 16 finished with value: 0.0497872671559453 and parameters: {'lr': 0.0004405020394295851, 'weight_decay': 1.5237970011146052e-06, 'optimizer': 'Adam', 'batch_size': 4, 'num_epochs': 11}. Best is trial 13 with value: 0.04832607520247499.
+
+
+
+10000 images - 1500
+
+10000 images - 600
+
+
+10000 images - 220
+
+10000 images - 120
+
+Loss 0.0497872671559453 and parameters: {'lr': 0.0005505020394295851,, 'optimizer': 'Adam', 'batch_size': 8, 'num_epochs': 11}. 
+
+
