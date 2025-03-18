@@ -5,7 +5,8 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 import sys
 from HybridResNetUNetModel import ResNetUNet
-
+from HybridEfficientNetREDNetModel import EfficientNetREDNet
+from HybridResNetREDNetModel import ResNetREDNet
 from HybridEfficientNetUNetModel import EfficientNetUNet
 from DiffusionDataset import DiffusionDataset
 import matplotlib.pyplot as plt
@@ -52,7 +53,11 @@ def ssim(img1, img2, window_size=11, sigma=1.5, val_range=1.0):
     ssim_map = ((2.0 * mu1_mu2 + C1) * (2.0 * sigma12 + C2)) / (
                 (mu1_sq + mu2_sq + C1) * (sigma1_sq + sigma2_sq + C2)
                )
+    
     return ssim_map.mean()
+
+
+
 
 
 if __name__ == '__main__':
@@ -68,7 +73,7 @@ if __name__ == '__main__':
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     
     # Load the model
-    model = EfficientNetUNet().to(device)
+    model = ResNetUNet().to(device)
     model.load_state_dict(torch.load(model_path, map_location=device))
     model.eval()
     
@@ -92,15 +97,14 @@ if __name__ == '__main__':
             loss = ssim(output, clean)
             total_loss += loss.item()  # Accumulate the loss
             
-            print(f"Batch {i}: Loss = {loss.item():.6f}")
+            print(f"Batch {i}: SSIM = {loss.item():.6f}")
             
             
             # Display a sample prediction
-            if i == 522:
+            if i == 171:
 
                 output_np = output.squeeze().cpu().numpy()
                 pred_probs = torch.sigmoid(output)
-                binary_pred = (pred_probs > 0.5).squeeze().cpu().numpy()
 
                 clean_np = clean.squeeze().cpu().numpy()
                 diffused_np = diffused.squeeze().cpu().numpy()
