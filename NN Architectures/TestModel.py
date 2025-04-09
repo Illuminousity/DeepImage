@@ -12,11 +12,13 @@ from DiffusionDataset import DiffusionDataset
 import matplotlib.pyplot as plt
 import numpy as np
 
+# Make sure you've installed LPIPS first: pip install lpips
+import lpips
+
 ###############################
 # SSIM Utility Functions
 ###############################
 def gaussian(window_size, sigma):
-    # Use math.exp for float-based exponent
     gauss = torch.Tensor([
         math.exp(-(x - window_size//2)**2 / (2 * sigma**2))
         for x in range(window_size)
@@ -30,8 +32,8 @@ def create_window(window_size, channel, sigma):
     window = window.expand(channel, 1, window_size, window_size).contiguous()
     return window
 
-def ssim(img1, img2, window_size=11, sigma=1.5, val_range=1.0):
-    # Expects img1, img2: (N, C, H, W)
+def ssim(img1, img2, window_size=11, sigma=1.5, val_range=1):
+    # Expects img1, img2: (N, C, H, W) in [0, 1]
     (_, channel, _, _) = img1.size()
     window = create_window(window_size, channel, sigma).to(img1.device)
     
@@ -49,16 +51,37 @@ def ssim(img1, img2, window_size=11, sigma=1.5, val_range=1.0):
     # Stability constants
     C1 = (0.01 * val_range) ** 2
     C2 = (0.03 * val_range) ** 2
-    
+
     ssim_map = ((2.0 * mu1_mu2 + C1) * (2.0 * sigma12 + C2)) / (
                 (mu1_sq + mu2_sq + C1) * (sigma1_sq + sigma2_sq + C2)
                )
     
     return ssim_map.mean()
 
+###############################
+# LPIPS for Grayscale
+###############################
+def compute_lpips(model_lpips, img_pred, img_gt):
+    """
+    Compute LPIPS using the specified model (e.g., lpips.LPIPS(net='alex')).
+    Expects each image in (N, C=1, H, W) range [0,1].
+    LPIPS default expects RGB in range [-1,1], so we'll do:
+      1) replicate channel 3 times (for grayscale -> RGB)
+      2) scale from [0,1] to [-1,1]
 
+    Returns average LPIPS for the batch (scalar).
+    """
+    # 1) replicate the single channel into 3 channels
+    img_pred_3ch = img_pred.repeat(1, 3, 1, 1)
+    img_gt_3ch   = img_gt.repeat(1, 3, 1, 1)
+    
+    # 2) shift from [0,1] -> [-1,1]
+    img_pred_3ch = (img_pred_3ch * 2.0) - 1.0
+    img_gt_3ch   = (img_gt_3ch * 2.0) - 1.0
 
-
+    lpips_val = model_lpips(img_pred_3ch, img_gt_3ch)
+    # lpips() returns (N,1,1,1). We'll take the mean for the batch
+    return lpips_val.mean().item()
 
 if __name__ == '__main__':
     if len(sys.argv) != 3:
@@ -67,48 +90,53 @@ if __name__ == '__main__':
     
     grit_value = sys.argv[1]
     model_path = sys.argv[2]
-    diffused_dir = f"./DMD/Testing/{grit_value} GRIT"
-    clean_dir = "./DMD/Testing/Raw"
+    diffused_dir = f"./DMD/Greyscale/Testing/{grit_value} GRIT"
+    clean_dir = "./DMD/Greyscale/Testing/Raw"
     
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     
-    # Load the model
-    model = ResNetUNet().to(device)
+    # Load the model (adjust model type as needed)
+    model = EfficientNetREDNet().to(device)
     model.load_state_dict(torch.load(model_path, map_location=device))
     model.eval()
     
+    # Initialize LPIPS with a pre-trained "alex" backbone
+    lpips_alex = lpips.LPIPS(net='alex').to(device)
+
     # Transforms
     transform = transforms.Compose([
-        transforms.ToTensor()
+        transforms.ToTensor()  # gives us [0,1] grayscale images
     ])
     
     # Create dataset & loader
-    dataset = DiffusionDataset(diffused_dir, clean_dir,cap=1000, transform=transform)
+    dataset = DiffusionDataset(diffused_dir, clean_dir, cap=1000, transform=transform)
     dataloader = DataLoader(dataset, batch_size=1, shuffle=False)
     
-    
-    total_loss = 0
+    total_ssim = 0.0
+    total_lpips = 0.0
     
     # Evaluate the model
     with torch.no_grad():
         for i, (diffused, clean) in enumerate(dataloader):
             diffused, clean = diffused.to(device), clean.to(device)
             output = model(diffused)
-            loss = ssim(output, clean)
-            total_loss += loss.item()  # Accumulate the loss
-            
-            print(f"Batch {i}: SSIM = {loss.item():.6f}")
-            
-            
-            # Display a sample prediction
-            if i == 171:
 
+            # Compute SSIM
+            current_ssim = ssim(output, clean)
+            total_ssim += current_ssim.item()
+
+            # Compute LPIPS
+            current_lpips = compute_lpips(lpips_alex, output, clean)
+            total_lpips += current_lpips
+
+            print(f"Batch {i}: SSIM = {current_ssim:.6f}, LPIPS = {current_lpips:.6f}")
+            
+            # Display a sample prediction (optional)
+            if i == 786:
                 output_np = output.squeeze().cpu().numpy()
-                pred_probs = torch.sigmoid(output)
-
                 clean_np = clean.squeeze().cpu().numpy()
                 diffused_np = diffused.squeeze().cpu().numpy()
-                
+
                 fig, axs = plt.subplots(1, 3, figsize=(12, 4))
                 axs[0].imshow(diffused_np, cmap='gray')
                 axs[0].set_title("Diffused Input")
@@ -121,5 +149,10 @@ if __name__ == '__main__':
                     ax.axis('off')
                 plt.show()
     
-    avg_loss = total_loss / len(dataloader)
-    print(f"Validation Completed. Average SSIM Reconstruction: {avg_loss:.6f}")
+    avg_ssim = total_ssim / len(dataloader)
+    avg_lpips = total_lpips / len(dataloader)
+
+    print(f"Validation Completed.\n"
+          f"Average SSIM:  {avg_ssim:.6f}\n"
+          f"Average LPIPS: {avg_lpips:.6f}  (lower = better)")
+

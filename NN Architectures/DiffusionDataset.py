@@ -2,7 +2,9 @@ import re
 from PIL import Image
 import os
 from torch.utils.data import Dataset
-from torchvision import transforms
+from torchvision.transforms import functional as TF
+
+
 
 class DiffusionDataset(Dataset):
     def __init__(self, diffused_dir, clean_dir, transform=None, cap=60000):

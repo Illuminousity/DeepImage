@@ -12,7 +12,7 @@ class ResNetEncoder(nn.Module):
         Builds a ResNet34 encoder adapted to accept single-channel input (Greyscale).
         """
         super().__init__()
-        # 1) Create resnet34 with no pretrained weights
+        # 1) Create resnet34
         resnet = models.resnet34(weights=None)
 
         # 2) Replace the very first conv layer to accept 1 channel instead of 3
@@ -61,5 +61,5 @@ class ResNetEncoder(nn.Module):
         x = self.layer4(x)         # -> [B, 512, H/32, W/32]
         s5 = x
 
-        # Return intermediate features for U-Net style decoding
+        # Return intermediate features for decoding
         return s1, s2, s3, s4, s5

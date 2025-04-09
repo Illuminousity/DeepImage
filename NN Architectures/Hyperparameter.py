@@ -9,6 +9,7 @@ import os
 
 # Import your segmentation model.
 from HybridEfficientNetUNetModel import EfficientNetUNet
+from HybridResNetREDNetModel import ResNetREDNet
 from HybridEfficientNetREDNetModel import EfficientNetREDNet
 # Import your dataset.
 from DiffusionDataset import DiffusionDataset
@@ -98,11 +99,11 @@ def objective(trial):
 if __name__ == "__main__":
     global args
 
-    parser = argparse.ArgumentParser(description="Hyperparameter Optimization for EfficientNetUNetSegmentation")
+    parser = argparse.ArgumentParser(description="Hyperparameter Optimization")
     parser.add_argument("--grit_value", type=str, default="default_grit", help="Grit value for dataset directory")
     parser.add_argument("--cap", type=str, default="default_cap", help="Cap value for dataset")
     parser.add_argument("--n_trials", type=int, default=20, help="Number of Optuna trials")
-    parser.add_argument("--epochs", type=int, default=5, help="Number of Parameters fo optimize for")
+    parser.add_argument("--epochs", type=int, default=5, help="Number of Parameters to optimize for")
     
     args = parser.parse_args()
     # Set up dataset paths.
