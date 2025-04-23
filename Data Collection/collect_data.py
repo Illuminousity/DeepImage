@@ -74,7 +74,7 @@ with TLCameraSDK() as sdk:
         camera.arm(2)
 
         try:
-            for i in range(0, 120000):
+            for i in range(0, 60000):
                 image_list = []
                 
                 dmd.FreeSeq()

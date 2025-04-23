@@ -12,6 +12,9 @@ be used instead:
 - Manually copy the DLLs into the working directory of your application.
 - Manually add the path to the directory containing the DLLs to the system PATH environment variable.
 
+
+CODE TAKEN FROM THORLABS GITHUB REPO (https://github.com/Thorlabs/Camera_Examples)
+
 """
 
 import os

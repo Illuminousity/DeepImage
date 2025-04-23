@@ -2,7 +2,6 @@
 /data
 /Images
 /DMD
-./vggnet*
 *.pyc
-*.pth
 *.png
+*.pth
