@@ -41,7 +41,7 @@ The `./Utils` folder contains scripts that have some sort of Utility function, m
 
 ## Eval
 
-The `./Evals` folder contains scripts that have been used to generate figures or statistics within the dissertation, including ANOVA, feature map visualisation and others.
+The `./Eval` folder contains scripts that have been used to generate figures or statistics within the dissertation, including ANOVA, feature map visualisation and others.
 
 ## Data
 
