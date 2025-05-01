@@ -12,7 +12,7 @@
 * Install Thorcam - Installer found in `./Installers`
 * Install ALP4.3 Libraries - Installer found in `./Installers`
 * Install Thorcam Camera Libs to Python - Instructions found in Thorlabs Repo https://github.com/Thorlabs/Camera_Examples/tree/main/Python#build-instructions
-* After Installing `requirements.txt` using `pip` the folder located at `C:\Program Files\ALP-4.3\ALP4.3 API` is renamed to `C:\Program Files\ALP-4.3\ALP-4.3 high-speed API` this is an issue with ALP4Lib referencing an outdated folder.
+* After Installing `requirements.txt` using `pip` the folder located at `C:\Program Files\ALP-4.3\ALP-4.3 API` is renamed to `C:\Program Files\ALP-4.3\ALP-4.3 high-speed API` this is an issue with ALP4Lib referencing an outdated folder.
 
 ## Collecting Data
 
@@ -50,3 +50,7 @@ The `./Figures`, `./FiguresGreyscale`, `./csv`, and `./csveval` folders contain 
 ## Not Included due to Size
 
 The `./DMD` and `./data` folders are too large to upload to the GitHub Repo, and shouldn't be on the GitHub Repo. They contain images used within the training process, the `./data` folder is the EMNIST data from EMNIST directly that is not in an image format. The `./DMD/` folder contains all of the images that were taken throughout the project over both greyscale and binary images and over the ranges of diffusion, both training and testing datasets or contained within this folder. There is over 6GB of data collected over the course of the project.
+
+## ZIP Submission
+
+Due to size limitations for the ZIP submission, a variety of models have been picked and a small sample of testing data has been supplied.

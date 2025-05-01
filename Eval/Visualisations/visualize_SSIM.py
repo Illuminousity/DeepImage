@@ -61,8 +61,8 @@ if __name__ == "__main__":
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     # Load model
-    sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../NN Architectures/')))
-    from HybridResNetREDNetModel import ResNetREDNet  # or swap with another
+    sys.path.append("./NNArchitectures/")    
+    from HybridResNetREDNetModel import ResNetREDNet 
     model = ResNetREDNet().to(device)
     model.load_state_dict(torch.load(model_path, map_location=device))
     model.eval()

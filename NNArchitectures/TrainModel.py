@@ -9,7 +9,6 @@ import matplotlib.pyplot as plt
 import argparse
 import csv
 import time
-from NNArchitectures.Archive.FourierLoss import FourierLoss
 from NPCCLoss import NPCCLoss
 
 # Import your models and dataset classes
@@ -44,6 +43,7 @@ def validate_model(model, dataloader, device, criterion):
 # ---------------------------------------------------------------------
 
 def train_model(model, loss, train_loader, test_loader, optimizer, device, num_epochs=20, patience=8, output_suffix="", figure_dir="./Figures", csv_dir="./csv"):
+    # Initialize Training
     model.train()
     criterion = loss
     train_losses, test_losses, epoch_times = [], [], []

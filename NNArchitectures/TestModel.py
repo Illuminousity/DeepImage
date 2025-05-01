@@ -89,7 +89,7 @@ if __name__ == '__main__':
     
 
     parser = argparse.ArgumentParser(description="Run CNN image reconstruction with specified GRIT and model path.")
-    parser.add_argument('--grit', type=int, required=True, help='GRIT value for the diffuser (e.g., 1500)')
+    parser.add_argument('--grit_value', type=int, required=True, help='GRIT value for the diffuser (e.g., 1500)')
     parser.add_argument('--model_path', type=str, required=True, help='Path to the model .pth file')
     parser.add_argument("--greyscale", action="store_true")
     parser.add_argument("--architecture", type=str, default="effnet_unet")
@@ -97,7 +97,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     architecture = args.architecture
     greyscale = args.greyscale
-    grit_value = args.grit
+    grit_value = args.grit_value
     model_path = args.model_path
     if greyscale:
         diffused_dir = f"./DMD/Greyscale/Testing/{grit_value} GRIT"

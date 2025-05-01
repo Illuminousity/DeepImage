@@ -6,7 +6,7 @@ import statsmodels.api as sm
 from statsmodels.formula.api import ols
 
 # Load your CSV
-df = pd.read_csv("./csveval/evaluation_results_new.csv")
+df = pd.read_csv("./csveval/evaluation_results.csv")
 filename_col = "ModelPath" if "ModelPath" in df.columns else "ModelName"
 
 # --- Extract features from ModelName ---
@@ -55,9 +55,8 @@ merged_df = pd.merge(df, runtime_df, left_on="RuntimeKey", right_on="Model", how
 
 # --- ANOVA for SSIM ---
 ssim_model = ols(
-    "Average_SSIM ~ C(Architecture) + C(Dataset_Size) + C(Image_Type) + C(TotalTime) + C(LossFunction) + C(GRIT)  +"
-    "C(Architecture):C(GRIT) + C(Architecture):C(Image_Type) + C(Architecture):C(LossFunction) + C(Architecture):C(LossFunction):C(Image_Type) +"
-    "C(Architecture):C(Image_Type):C(Dataset_Size) + C(Architecture):C(Image_Type):C(GRIT)", 
+    "Average_SSIMA ~ C(Architecture) + C(Dataset_Size) + C(Image_Type) + C(TotalTime) + C(LossFunction) + C(GRIT)",
+
     data=merged_df
 ).fit()
 ssim_anova = sm.stats.anova_lm(ssim_model, typ=2)
@@ -65,9 +64,7 @@ ssim_anova = sm.stats.anova_lm(ssim_model, typ=2)
 # --- ANOVA for LPIPS ---
 
 lpips_model = ols(
-    "Average_LPIPS ~ C(Architecture) + C(Dataset_Size) + C(Image_Type) + C(TotalTime) + C(LossFunction) + C(GRIT)  +"
-    "C(Architecture):C(GRIT) + C(Architecture):C(Image_Type) + C(Architecture):C(LossFunction) + C(Architecture):C(LossFunction):C(Image_Type) +"
-    "C(Architecture):C(Image_Type):C(Dataset_Size) + C(Architecture):C(Image_Type):C(GRIT)", 
+       "Average_LPIPS ~ C(Architecture) + C(Dataset_Size) + C(Image_Type) + C(TotalTime) + C(LossFunction) + C(GRIT)",
     data=merged_df
 ).fit()
 lpips_anova = sm.stats.anova_lm(lpips_model, typ=2)
