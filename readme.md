@@ -1,7 +1,7 @@
 
-# DeepImage - A Quantitative Analysis of CNN Approaches to Image Reconstruction through Dispersive Media
+# DeepImage - A Quantitative Analysis of CNN Approaches to Image Reconstruction through Disordered Media
 
-> This repository outlines all the code used in the honours project: **A Quantitative Analysis of CNN Approaches to Image Reconstruction through Dispersive Media** by **Matthew Robertson** (**52199806**)
+> This repository outlines all the code used in the honours project: **A Quantitative Analysis of CNN Approaches to Image Reconstruction through Disordered Media** by **Matthew Robertson** (**52199806**)
 
 ## Install Prerequisites
 **GENERAL**
@@ -41,7 +41,7 @@ The `./Utils` folder contains scripts that have some sort of Utility function, m
 
 ## Eval
 
-The `./Evals` folder contains scripts that have been used to generate figures or statistics within the dissertation, including ANOVA, feature map visualisation and others.
+The `./Eval` folder contains scripts that have been used to generate figures or statistics within the dissertation, including ANOVA, feature map visualisation and others.
 
 ## Data
 
