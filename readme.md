@@ -5,13 +5,12 @@
 
 ## Install Prerequisites
 **GENERAL**
-* Install `requirements.txt` using `pip install -r requirements.txt`
+* Install Python requirements using `./InstallDependencies.bat`
 
 **FOR DATA COLLECTION**
 
 * Install Thorcam - Installer found in `./Installers`
 * Install ALP4.3 Libraries - Installer found in `./Installers`
-* Install Thorcam Camera Libs to Python - Instructions found in Thorlabs Repo https://github.com/Thorlabs/Camera_Examples/tree/main/Python#build-instructions
 * After Installing `requirements.txt` using `pip` the folder located at `C:\Program Files\ALP-4.3\ALP-4.3 API` is renamed to `C:\Program Files\ALP-4.3\ALP-4.3 high-speed API` this is an issue with ALP4Lib referencing an outdated folder.
 
 ## Collecting Data
