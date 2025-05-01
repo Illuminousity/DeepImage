@@ -61,6 +61,7 @@ with TLCameraSDK() as sdk:
 
     with sdk.open_camera(available_cameras[0]) as camera:
         print(f"Opened camera: {camera.model} (SN: {camera.serial_number})")
+        # Setup Camera with ROI settings
         camera.roi_width_pixels = 128
         camera.roi_height_pixels = 128
         camera.roi_x_pixels = 728
@@ -74,14 +75,14 @@ with TLCameraSDK() as sdk:
 
         try:
             for i in range(0, 60000):
-                
+                # Put image on DMD
                 dmd.FreeSeq()
                 dmd.SeqAlloc(nbImg=1, bitDepth=8)
                 image = FormatImage(i, dmd, emnist,invert=False,apply_gradient=True)
                 dmd.SeqPut(imgData=image)
                 dmd.Run()
                 time.sleep(0.0075)
-
+                # Capture Frames
                 image_stack = []
                 for _ in range(4):
                     camera.issue_software_trigger()
@@ -96,7 +97,7 @@ with TLCameraSDK() as sdk:
                     )
                     image_stack.append(image_np)
 
-                # Sum the 10 frames and normalize to 8-bit
+                # Sum the frames and normalize to 8-bit
                 summed_image = np.sum(image_stack, axis=0)
                 summed_image = np.clip(summed_image, 0, 255).astype(np.uint8)
 

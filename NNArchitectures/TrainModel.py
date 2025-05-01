@@ -173,8 +173,6 @@ if __name__ == "__main__":
             loss = nn.L1Loss()
         case "mse": 
             loss = nn.MSELoss()
-        case "Fourier": 
-            loss = FourierLoss()
         case "NPCC": 
             loss = NPCCLoss()
         case _: 
