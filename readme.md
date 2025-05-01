@@ -48,7 +48,7 @@ The `./Figures`, `./FiguresGreyscale`, `./csv`, and `./csveval` folders contain 
 
 ## Not Included due to Size
 
-The `./DMD` and `./data` folders are too large to upload to the GitHub Repo, and shouldn't be on the GitHub Repo. They contain images used within the training process, the `./data` folder is the EMNIST data from EMNIST directly that is not in an image format. The `./DMD/` folder contains all of the images that were taken throughout the project over both greyscale and binary images and over the ranges of diffusion, both training and testing datasets or contained within this folder. There is over 6GB of data collected over the course of the project.
+The `./DMD` and `./data` folders are too large to upload to the GitHub Repo, and shouldn't be on the GitHub Repo. They contain images used within the training process, the `./data` folder is the EMNIST data from EMNIST directly that is not in an image format. The `./DMD/` folder contains all of the images that were taken throughout the project over both greyscale and binary images and over the ranges of diffusion, both training and testing datasets or contained within this folder.
 
 ## ZIP Submission
 
