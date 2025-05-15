@@ -1,7 +1,6 @@
 # Ignore EMNIST DB & Data
 /data
 /Images
-/DMD
+
 *.pyc
 *.png
-*.pth
